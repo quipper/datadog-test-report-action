@@ -1,0 +1,56 @@
+name: ts
+
+on:
+  pull_request:
+    paths:
+      - src/**
+      - tests/**
+      - '*.json'
+      - action.yaml
+      - .github/workflows/ts.yaml
+  push:
+    branches:
+      - main
+    paths:
+      - src/**
+      - tests/**
+      - '*.json'
+      - action.yaml
+      - .github/workflows/ts.yaml
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        with:
+          node-version: 20
+          cache: yarn
+      - run: yarn
+      - run: yarn test
+      - run: yarn build
+      - run: yarn package
+
+      - name: e2e-test
+        uses: ./
+        with:
+          name: foo
+
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        with:
+          node-version: 20
+          cache: yarn
+      - run: yarn
+      - run: yarn lint --fix
+      - run: yarn format
+      - uses: int128/update-generated-files-action@1c892bb06bee834aaea172d2dc36fc772f59c1df # v2.47.0
