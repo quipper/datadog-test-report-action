@@ -15,7 +15,7 @@
     "@actions/http-client" "^2.0.1"
     uuid "^8.3.2"
 
-"@actions/glob@^0.4.0":
+"@actions/glob@0.4.0":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@actions/glob/-/glob-0.4.0.tgz#b169b1c1c72f41e5df7b3d9349539c88fa68403c"
   integrity sha512-+eKIGFhsFa4EBwaf/GMyzCdWrXWymGXfFmZU3FHQvYS8mPcHtTtZONbkcqqUMzw9mJ/pImEBFET1JNifhqGsAQ==
@@ -498,7 +498,7 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@datadog/datadog-api-client@^1.21.0":
+"@datadog/datadog-api-client@1.21.0":
   version "1.21.0"
   resolved "https://registry.yarnpkg.com/@datadog/datadog-api-client/-/datadog-api-client-1.21.0.tgz#6c30bcc9a2085a8818d81eb20da743ca4c8b15f1"
   integrity sha512-PYDD/ecfNom96d+zZfIFOmaszpMUvSUF+2JyW13dpb+1iLaAlGFnRT4MLTrZUqFBQLxhfBPUxZFRQA28WBOdbA==
@@ -1928,7 +1928,7 @@ fast-levenshtein@^2.0.6:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
 
-fast-xml-parser@^4.3.3:
+fast-xml-parser@4.3.3:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.3.3.tgz#aeaf5778392329f17168c40c51bcbfec8ff965be"
   integrity sha512-coV/D1MhrShMvU6D0I+VAK3umz6hUaxxhL0yp/9RjfiYUfAv14rDhGQL+PLForhMdr0wq3PiV07WtkkNjJjNHg==
