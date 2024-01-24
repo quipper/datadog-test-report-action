@@ -29,14 +29,14 @@ jobs:
           node-version: 20
           cache: yarn
       - run: yarn
-      - run: yarn test
+      - run: yarn test --reporters=default --reporters=jest-junit
       - run: yarn build
       - run: yarn package
 
-      - name: e2e-test
+      - name: int128/datadog-test-report-action
         uses: ./
         with:
-          name: foo
+          junit-xml-path: junit.xml
 
   generate:
     runs-on: ubuntu-latest

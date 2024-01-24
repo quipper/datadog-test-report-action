@@ -3,7 +3,9 @@ import { run } from './run'
 
 const main = async (): Promise<void> => {
   await run({
-    name: core.getInput('name', { required: true }),
+    junitXmlPath: core.getInput('junit-xml-path', { required: true }),
+    datadogApiKey: core.getInput('datadog-api-key'),
+    datadogSite: core.getInput('datadog-site'),
   })
 }
 
