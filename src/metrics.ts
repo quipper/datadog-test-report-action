@@ -6,63 +6,68 @@ export type Metrics = {
   distributionPointsSeries: v1.DistributionPointsSeries[]
 }
 
-export const getJunitXmlMetrics = (junitXml: JunitXml): Metrics => {
-  const timestamp = unixTime(new Date())
+export type Context = {
+  prefix: string
+  tags: string[]
+  timestamp: number
+}
+
+export const getJunitXmlMetrics = (junitXml: JunitXml, context: Context): Metrics => {
   const testSuites = junitXml.testsuites?.testsuite ?? junitXml.testsuite ?? []
   const metrics: Metrics = {
     series: [],
     distributionPointsSeries: [],
   }
   for (const testSuite of testSuites) {
-    const tsm = getTestSuiteMetrics(testSuite, timestamp)
+    const tsm = getTestSuiteMetrics(testSuite, context)
     metrics.series.push(...tsm.series)
     metrics.distributionPointsSeries.push(...tsm.distributionPointsSeries)
   }
   return metrics
 }
 
-const getTestSuiteMetrics = (testSuite: TestSuite, timestamp: number): Metrics => {
+const getTestSuiteMetrics = (testSuite: TestSuite, context: Context): Metrics => {
   const metrics: Metrics = {
     series: [],
     distributionPointsSeries: [],
   }
-  const tags = [`testsuite_name:${testSuite['@_name']}`]
+  const tags = [...context.tags, `testsuite_name:${testSuite['@_name']}`]
 
   metrics.series.push({
-    metric: 'testreport.testsuite.count',
-    points: [[timestamp, 1]],
+    metric: `${context.prefix}.testsuite.count`,
+    points: [[context.timestamp, 1]],
     type: 'count',
     tags,
   })
   const duration = testSuite['@_time']
   if (duration > 0) {
     metrics.distributionPointsSeries.push({
-      metric: 'testreport.testsuite.duration',
-      points: [[timestamp, [duration]]],
+      metric: `${context.prefix}.testsuite.duration`,
+      points: [[context.timestamp, [duration]]],
       tags,
     })
   }
   for (const testCase of testSuite.testcase ?? []) {
-    const tcm = getTestCaseMetrics(testCase, tags, timestamp)
+    const tcm = getTestCaseMetrics(testCase, context)
     metrics.series.push(...tcm.series)
     metrics.distributionPointsSeries.push(...tcm.distributionPointsSeries)
   }
 
   for (const childTestSuite of testSuite.testsuite ?? []) {
-    const tsm = getTestSuiteMetrics(childTestSuite, timestamp)
+    const tsm = getTestSuiteMetrics(childTestSuite, context)
     metrics.series.push(...tsm.series)
     metrics.distributionPointsSeries.push(...tsm.distributionPointsSeries)
   }
   return metrics
 }
 
-const getTestCaseMetrics = (testCase: TestCase, parentTags: string[], timestamp: number): Metrics => {
+const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
   const metrics: Metrics = {
     series: [],
     distributionPointsSeries: [],
   }
   const conclusion = testCase.failure ? 'failure' : 'success'
-  const tags = [...parentTags, `testcase_name:${testCase['@_name']}`, `testcase_conclusion:${conclusion}`]
+  const tags = [...context.tags, `testcase_name:${testCase['@_name']}`, `testcase_conclusion:${conclusion}`]
   if (testCase['@_classname']) {
     tags.push(`testcase_classname:${testCase['@_classname']}`)
   }
@@ -71,8 +76,8 @@ const getTestCaseMetrics = (testCase: TestCase, parentTags: string[], timestamp:
   }
 
   metrics.series.push({
-    metric: 'testreport.testcase.count',
-    points: [[timestamp, 1]],
+    metric: `${context.prefix}.testcase.count`,
+    points: [[context.timestamp, 1]],
     type: 'count',
     tags,
   })
@@ -80,8 +85,8 @@ const getTestCaseMetrics = (testCase: TestCase, parentTags: string[], timestamp:
   const duration = testCase['@_time']
   if (duration > 0) {
     metrics.distributionPointsSeries.push({
-      metric: 'testreport.testcase.duration',
-      points: [[timestamp, [duration]]],
+      metric: `${context.prefix}.testcase.duration`,
+      points: [[context.timestamp, [duration]]],
       tags,
     })
   }
@@ -89,4 +94,4 @@ const getTestCaseMetrics = (testCase: TestCase, parentTags: string[], timestamp:
   return metrics
 }
 
-const unixTime = (date: Date): number => Math.floor(date.getTime() / 1000)
+export const unixTime = (date: Date): number => Math.floor(date.getTime() / 1000)
