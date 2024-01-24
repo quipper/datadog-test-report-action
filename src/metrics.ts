@@ -34,10 +34,11 @@ const getTestSuiteMetrics = (testSuite: TestSuite, timestamp: number): Metrics =
     type: 'count',
     tags,
   })
-  if (testSuite['@_time'] > 0) {
+  const duration = testSuite['@_time']
+  if (duration > 0) {
     metrics.distributionPointsSeries.push({
       metric: 'testreport.testsuite.duration',
-      points: [[timestamp, testSuite['@_time']]],
+      points: [[timestamp, [duration]]],
       tags,
     })
   }
@@ -76,10 +77,11 @@ const getTestCaseMetrics = (testCase: TestCase, parentTags: string[], timestamp:
     tags,
   })
 
-  if (testCase['@_time'] > 0) {
+  const duration = testCase['@_time']
+  if (duration > 0) {
     metrics.distributionPointsSeries.push({
       metric: 'testreport.testcase.duration',
-      points: [[timestamp, testCase['@_time']]],
+      points: [[timestamp, [duration]]],
       tags,
     })
   }
