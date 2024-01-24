@@ -52,7 +52,7 @@ class RealMetricsClient implements MetricsClient {
 }
 
 export const createMetricsClient = (inputs: Inputs): MetricsClient => {
-  if (inputs.datadogApiKey === undefined) {
+  if (!inputs.datadogApiKey) {
     return new DryRunMetricsClient()
   }
 

@@ -7,8 +7,8 @@ import { getJunitXmlMetrics } from './metrics'
 
 type Inputs = {
   junitXmlPath: string
-  datadogApiKey?: string
-  datadogSite?: string
+  datadogApiKey: string
+  datadogSite: string
 }
 
 export const run = async (inputs: Inputs): Promise<void> => {
