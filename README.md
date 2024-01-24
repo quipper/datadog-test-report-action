@@ -13,16 +13,18 @@ jobs:
     steps:
       - uses: int128/datadog-test-report-action@v1
         with:
-          name: hello
+          junit-xml-path: '**/junit.xml'
 ```
 
 ### Inputs
 
-| Name              | Default    | Description                           |
-| ----------------- | ---------- | ------------------------------------- |
-| `junit-xml-path`  | (required) | Glob pattern to the JUnit XML file(s) |
-| `datadog-api-key` | -          | Datadog API key                       |
-| `datadog-site`    | -          | Datadog site                          |
+| Name                 | Default      | Description                           |
+| -------------------- | ------------ | ------------------------------------- |
+| `junit-xml-path`     | (required)   | Glob pattern to the JUnit XML file(s) |
+| `metric-name-prefix` | `testreport` | Prefix of the name of metrics         |
+| `datadog-api-key`    | -            | Datadog API key                       |
+| `datadog-site`       | -            | Datadog site                          |
+| `datadog-tags`       | -            | Datadog tags                          |
 
 ### Outputs
 

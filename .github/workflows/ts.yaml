@@ -37,6 +37,8 @@ jobs:
         uses: ./
         with:
           junit-xml-path: junit.xml
+          datadog-tags: |
+            service:datadog-test-report-action
 
   generate:
     runs-on: ubuntu-latest

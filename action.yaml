@@ -5,11 +5,18 @@ inputs:
   junit-xml-path:
     description: Glob pattern to the JUnit XML file(s)
     required: true
+  metric-name-prefix:
+    description: Prefix of the name of metrics
+    required: true
+    default: testreport
   datadog-api-key:
     description: Datadog API key
     required: false
   datadog-site:
     description: Datadog site
+    required: false
+  datadog-tags:
+    description: Datadog tags (key:value of multiline string)
     required: false
 
 runs:
