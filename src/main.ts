@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import * as github from '@actions/github'
 import { run } from './run'
 
 const main = async (): Promise<void> => {
@@ -8,6 +9,9 @@ const main = async (): Promise<void> => {
     datadogApiKey: core.getInput('datadog-api-key'),
     datadogSite: core.getInput('datadog-site'),
     datadogTags: core.getMultilineInput('datadog-tags'),
+    repositoryOwner: github.context.repo.owner,
+    repositoryName: github.context.repo.repo,
+    workflowName: github.context.workflow,
   })
 }
 
