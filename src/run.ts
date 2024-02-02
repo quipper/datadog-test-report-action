@@ -11,12 +11,22 @@ type Inputs = {
   datadogApiKey: string
   datadogSite: string
   datadogTags: string[]
+  repositoryOwner: string
+  repositoryName: string
+  workflowName: string
 }
 
 export const run = async (inputs: Inputs): Promise<void> => {
+  const workflowTags = [
+    // Keep less cardinality for cost perspective.
+    `repository_owner:${inputs.repositoryOwner}`,
+    `repository_name:${inputs.repositoryName}`,
+    `workflow_name:${inputs.workflowName}`,
+  ]
+
   const metricsContext = {
     prefix: inputs.metricNamePrefix,
-    tags: [...inputs.datadogTags],
+    tags: [...workflowTags, ...inputs.datadogTags],
     timestamp: unixTime(new Date()),
   }
   core.info(`Metrics context: ${JSON.stringify(metricsContext, undefined, 2)}`)
