@@ -8,6 +8,8 @@ import { getJunitXmlMetrics, unixTime } from './metrics'
 type Inputs = {
   junitXmlPath: string
   metricNamePrefix: string
+  filterTestCaseSlowerThan: number
+  filterTestCaseConclusions: string[]
   datadogApiKey: string
   datadogSite: string
   datadogTags: string[]
@@ -28,6 +30,8 @@ export const run = async (inputs: Inputs): Promise<void> => {
     prefix: inputs.metricNamePrefix,
     tags: [...workflowTags, ...inputs.datadogTags],
     timestamp: unixTime(new Date()),
+    filterTestCaseSlowerThan: inputs.filterTestCaseSlowerThan,
+    filterTestCaseConclusions: inputs.filterTestCaseConclusions,
   }
   core.info(`Metrics context: ${JSON.stringify(metricsContext, undefined, 2)}`)
 
