@@ -6,6 +6,8 @@ const main = async (): Promise<void> => {
   await run({
     junitXmlPath: core.getInput('junit-xml-path', { required: true }),
     metricNamePrefix: core.getInput('metric-name-prefix', { required: true }),
+    filterTestCaseSlowerThan: parseFloat(core.getInput('filter-test-case-slower-than', { required: true })),
+    filterTestCaseConclusions: core.getMultilineInput('filter-test-case-conclusions', { required: true }),
     datadogApiKey: core.getInput('datadog-api-key'),
     datadogSite: core.getInput('datadog-site'),
     datadogTags: core.getMultilineInput('datadog-tags'),

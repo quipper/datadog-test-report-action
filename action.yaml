@@ -9,6 +9,14 @@ inputs:
     description: Prefix of the name of metrics
     required: true
     default: testreport
+  filter-test-case-slower-than:
+    description: Filter test cases slower than the threshold (in seconds)
+    required: true
+    default: '1'
+  filter-test-case-conclusions:
+    description: Filter test cases by conclusions (multiline)
+    required: true
+    default: failure
   datadog-api-key:
     description: Datadog API key
     required: false

@@ -10,6 +10,8 @@ export type Context = {
   prefix: string
   tags: string[]
   timestamp: number
+  filterTestCaseSlowerThan: number
+  filterTestCaseConclusions: string[]
 }
 
 export const getJunitXmlMetrics = (junitXml: JunitXml, context: Context): Metrics => {
@@ -75,15 +77,17 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
     tags.push(`testcase_file:${testCase['@_file']}`)
   }
 
-  metrics.series.push({
-    metric: `${context.prefix}.testcase.count`,
-    points: [[context.timestamp, 1]],
-    type: 'count',
-    tags,
-  })
+  if (context.filterTestCaseConclusions.includes(conclusion)) {
+    metrics.series.push({
+      metric: `${context.prefix}.testcase.count`,
+      points: [[context.timestamp, 1]],
+      type: 'count',
+      tags,
+    })
+  }
 
   const duration = testCase['@_time']
-  if (duration > 0) {
+  if (duration > context.filterTestCaseSlowerThan) {
     metrics.distributionPointsSeries.push({
       metric: `${context.prefix}.testcase.duration`,
       points: [[context.timestamp, [duration]]],
