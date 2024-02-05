@@ -40,29 +40,34 @@ It has the following tags:
 
 - `testsuite_name`
 
-### `testreport.testcase.count` (count)
+### `testreport.testcase.success_count` (count)
 
-This metric represents the number of test cases.
+This metric represents the number of succeeded test cases.
 It has the following tags:
 
 - `testcase_name`
-- `testcase_conclusion` (`success` or `failure`)
 - `testcase_classname`
 - `testcase_file`
 
 This actions sends **only failed test cases by default**.
-You can set `filter-test-case-conclusions` to send all test cases.
-
+You can set `send-test-case-success` to send all test cases.
 :warning: It may increase the custom metrics cost.
 
 ```yaml
 - uses: int128/datadog-test-report-action@v1
   with:
     junit-xml-path: '**/junit.xml'
-    filter-test-case-conclusions: |
-      success
-      failure
+    send-test-case-success: true
 ```
+
+### `testreport.testcase.failure_count` (count)
+
+This metric represents the number of failed test cases.
+It has the following tags:
+
+- `testcase_name`
+- `testcase_classname`
+- `testcase_file`
 
 ### `testreport.testcase.duration` (distribution)
 
@@ -76,7 +81,6 @@ It has the following tags:
 
 This action sends test cases **slower than 1 second by default**.
 You can set `filter-test-case-slower-than` to send all test cases.
-
 :warning: It may increase the custom metrics cost.
 
 ```yaml
@@ -95,7 +99,8 @@ You can set `filter-test-case-slower-than` to send all test cases.
 | `junit-xml-path`               | (required)   | Glob pattern to the JUnit XML file(s)                    |
 | `metric-name-prefix`           | `testreport` | Prefix of the name of metrics                            |
 | `filter-test-case-slower-than` | 1            | Filter test cases slower than the threshold (in seconds) |
-| `filter-test-case-conclusions` | `failure`    | Filter test cases by conclusions (multiline)             |
+| `send-test-case-success`       | false        | Send succeeded test cases                                |
+| `send-test-case-failure`       | true         | Send failed test cases                                   |
 | `datadog-api-key`              | -            | Datadog API key                                          |
 | `datadog-site`                 | -            | Datadog site                                             |
 | `datadog-tags`                 | -            | Datadog tags                                             |

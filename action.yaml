@@ -13,10 +13,14 @@ inputs:
     description: Filter test cases slower than the threshold (in seconds)
     required: true
     default: '1'
-  filter-test-case-conclusions:
-    description: Filter test cases by conclusions (multiline)
+  send-test-case-success:
+    description: Send succeeded test cases
     required: true
-    default: failure
+    default: 'false'
+  send-test-case-failure:
+    description: Send failed test cases
+    required: true
+    default: 'true'
   datadog-api-key:
     description: Datadog API key
     required: false

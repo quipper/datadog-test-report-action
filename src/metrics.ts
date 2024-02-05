@@ -11,7 +11,8 @@ export type Context = {
   tags: string[]
   timestamp: number
   filterTestCaseSlowerThan: number
-  filterTestCaseConclusions: string[]
+  sendTestCaseSuccess: boolean
+  sendTestCaseFailure: boolean
 }
 
 export const getJunitXmlMetrics = (junitXml: JunitXml, context: Context): Metrics => {
@@ -68,8 +69,7 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
     series: [],
     distributionPointsSeries: [],
   }
-  const conclusion = testCase.failure ? 'failure' : 'success'
-  const tags = [...context.tags, `testcase_name:${testCase['@_name']}`, `testcase_conclusion:${conclusion}`]
+  const tags = [...context.tags, `testcase_name:${testCase['@_name']}`]
   if (testCase['@_classname']) {
     tags.push(`testcase_classname:${testCase['@_classname']}`)
   }
@@ -77,9 +77,17 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
     tags.push(`testcase_file:${testCase['@_file']}`)
   }
 
-  if (context.filterTestCaseConclusions.includes(conclusion)) {
+  if (!testCase.failure && context.sendTestCaseSuccess) {
     metrics.series.push({
-      metric: `${context.prefix}.testcase.count`,
+      metric: `${context.prefix}.testcase.success_count`,
+      points: [[context.timestamp, 1]],
+      type: 'count',
+      tags,
+    })
+  }
+  if (testCase.failure && context.sendTestCaseFailure) {
+    metrics.series.push({
+      metric: `${context.prefix}.testcase.failure_count`,
       points: [[context.timestamp, 1]],
       type: 'count',
       tags,

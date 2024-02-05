@@ -9,7 +9,8 @@ type Inputs = {
   junitXmlPath: string
   metricNamePrefix: string
   filterTestCaseSlowerThan: number
-  filterTestCaseConclusions: string[]
+  sendTestCaseSuccess: boolean
+  sendTestCaseFailure: boolean
   datadogApiKey: string
   datadogSite: string
   datadogTags: string[]
@@ -31,7 +32,8 @@ export const run = async (inputs: Inputs): Promise<void> => {
     tags: [...workflowTags, ...inputs.datadogTags],
     timestamp: unixTime(new Date()),
     filterTestCaseSlowerThan: inputs.filterTestCaseSlowerThan,
-    filterTestCaseConclusions: inputs.filterTestCaseConclusions,
+    sendTestCaseSuccess: inputs.sendTestCaseSuccess,
+    sendTestCaseFailure: inputs.sendTestCaseFailure,
   }
   core.info(`Metrics context: ${JSON.stringify(metricsContext, undefined, 2)}`)
 
