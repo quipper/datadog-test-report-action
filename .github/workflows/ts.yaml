@@ -33,7 +33,7 @@ jobs:
       - run: yarn build
       - run: yarn package
 
-      - name: int128/datadog-test-report-action
+      - name: quipper/datadog-test-report-action
         uses: ./
         with:
           junit-xml-path: junit.xml
