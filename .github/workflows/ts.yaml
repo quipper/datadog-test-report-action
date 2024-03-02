@@ -29,8 +29,8 @@ jobs:
           node-version: 20
       - run: corepack enable pnpm
       - run: pnpm i
-      - run: pnpm test --reporters=default --reporters=jest-junit
-      - run: pnpm build
+      - run: pnpm run test --reporters=default --reporters=jest-junit
+      - run: pnpm run build
 
       - name: quipper/datadog-test-report-action
         uses: ./
