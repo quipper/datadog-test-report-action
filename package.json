@@ -15,7 +15,7 @@
     "fast-xml-parser": "4.3.4"
   },
   "devDependencies": {
-    "@tsconfig/node20": "20.1.2",
+    "@tsconfig/node20": "20.1.4",
     "@types/jest": "29.5.12",
     "@types/node": "20.11.17",
     "@vercel/ncc": "0.38.1",
