@@ -21,8 +21,8 @@ importers:
         specifier: 1.22.0
         version: 1.22.0
       fast-xml-parser:
-        specifier: 4.3.4
-        version: 4.3.4
+        specifier: 4.3.6
+        version: 4.3.6
     devDependencies:
       '@tsconfig/node20':
         specifier: 20.1.4
@@ -930,8 +930,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-xml-parser@4.3.4:
-    resolution: {integrity: sha512-utnwm92SyozgA3hhH2I8qldf2lBqm6qHOICawRNRFu1qMe3+oqr+GcXjGqTmXTMGE5T4eC03kr/rlh5C1IRdZA==}
+  fast-xml-parser@4.3.6:
+    resolution: {integrity: sha512-M2SovcRxD4+vC493Uc2GZVcZaj66CCJhWurC4viynVSTvrpErCShNcDz1lAho6n9REQKvL/ll4A4/fw6Y9z8nw==}
     hasBin: true
 
   fastq@1.17.1:
@@ -2908,7 +2908,7 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-xml-parser@4.3.4:
+  fast-xml-parser@4.3.6:
     dependencies:
       strnum: 1.0.5
 
