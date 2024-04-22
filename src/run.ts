@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 import * as fs from 'fs/promises'
 import * as glob from '@actions/glob'
-import { createMetricsClient } from './client'
-import { parseJunitXml } from './junitxml'
-import { getJunitXmlMetrics, unixTime } from './metrics'
+import { createMetricsClient } from './client.js'
+import { parseJunitXml } from './junitxml.js'
+import { getJunitXmlMetrics, unixTime } from './metrics.js'
 
 type Inputs = {
   junitXmlPath: string

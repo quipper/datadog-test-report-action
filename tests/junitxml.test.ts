@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { parseJunitXml } from '../src/junitxml'
+import { parseJunitXml } from '../src/junitxml.js'
 
 describe('parseJunitXml', () => {
   it('should parse junit-basic.xml', () => {
