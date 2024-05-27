@@ -43,6 +43,10 @@ export const run = async (inputs: Inputs): Promise<void> => {
     core.info(`Processing ${junitXmlPath}`)
     const f = await fs.readFile(junitXmlPath)
     const junitXml = parseJunitXml(f)
+    core.startGroup(`Parsed ${junitXmlPath}`)
+    core.info(JSON.stringify(junitXml, undefined, 2))
+    core.endGroup()
+
     const metrics = getJunitXmlMetrics(junitXml, metricsContext)
 
     await metricsClient.submitMetrics(metrics.series, junitXmlPath)

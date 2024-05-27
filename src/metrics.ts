@@ -1,3 +1,4 @@
+import * as core from '@actions/core'
 import { v1 } from '@datadog/datadog-api-client'
 import { JunitXml, TestCase, TestSuite } from './junitxml.js'
 
@@ -77,21 +78,25 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
     tags.push(`testcase_file:${testCase['@_file']}`)
   }
 
-  if (!testCase.failure && context.sendTestCaseSuccess) {
-    metrics.series.push({
-      metric: `${context.prefix}.testcase.success_count`,
-      points: [[context.timestamp, 1]],
-      type: 'count',
-      tags,
-    })
-  }
-  if (testCase.failure && context.sendTestCaseFailure) {
-    metrics.series.push({
-      metric: `${context.prefix}.testcase.failure_count`,
-      points: [[context.timestamp, 1]],
-      type: 'count',
-      tags,
-    })
+  if (!testCase.failure && !testCase.error) {
+    if (context.sendTestCaseSuccess) {
+      metrics.series.push({
+        metric: `${context.prefix}.testcase.success_count`,
+        points: [[context.timestamp, 1]],
+        type: 'count',
+        tags,
+      })
+    }
+  } else {
+    core.error(`FAILURE: ${testCase['@_name']}`)
+    if (context.sendTestCaseFailure) {
+      metrics.series.push({
+        metric: `${context.prefix}.testcase.failure_count`,
+        points: [[context.timestamp, 1]],
+        type: 'count',
+        tags,
+      })
+    }
   }
 
   const duration = testCase['@_time']
