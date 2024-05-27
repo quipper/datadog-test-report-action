@@ -69,6 +69,9 @@ export type TestCase = {
   failure?: {
     '@_message'?: string
   }
+  error?: {
+    '@_message'?: string
+  }
 }
 
 function assertTestCase(x: unknown): asserts x is TestCase {
@@ -90,6 +93,13 @@ function assertTestCase(x: unknown): asserts x is TestCase {
     assert(x.failure != null)
     if ('@_message' in x.failure) {
       assert(typeof x.failure['@_message'] === 'string')
+    }
+  }
+  if ('error' in x) {
+    assert(typeof x.error === 'object')
+    assert(x.error != null)
+    if ('@_message' in x.error) {
+      assert(typeof x.error['@_message'] === 'string')
     }
   }
 }
