@@ -99,6 +99,7 @@ You can set `filter-test-case-slower-than` to send all test cases.
 | `junit-xml-path`               | (required)   | Glob pattern to the JUnit XML file(s)                    |
 | `metric-name-prefix`           | `testreport` | Prefix of the name of metrics                            |
 | `filter-test-case-slower-than` | 1            | Filter test cases slower than the threshold (in seconds) |
+| `enable-metrics`               | true         | If false, do not send the metrics to Datadog             |
 | `send-test-case-success`       | false        | Send succeeded test cases                                |
 | `send-test-case-failure`       | true         | Send failed test cases                                   |
 | `datadog-api-key`              | -            | Datadog API key                                          |

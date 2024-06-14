@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import { client, v1 } from '@datadog/datadog-api-client'
 
 type Inputs = {
+  enableMetrics: boolean
   datadogApiKey?: string
   datadogSite?: string
 }
@@ -52,7 +53,11 @@ class RealMetricsClient implements MetricsClient {
 }
 
 export const createMetricsClient = (inputs: Inputs): MetricsClient => {
+  if (!inputs.enableMetrics) {
+    return new DryRunMetricsClient()
+  }
   if (!inputs.datadogApiKey) {
+    core.warning('Datadog API key is not set. No metrics will be sent actually.')
     return new DryRunMetricsClient()
   }
 
