@@ -35,6 +35,7 @@ jobs:
       - name: quipper/datadog-test-report-action
         uses: ./
         with:
+          enable-metrics: false
           junit-xml-path: junit.xml
           datadog-tags: |
             service:datadog-test-report-action

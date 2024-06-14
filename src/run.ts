@@ -11,6 +11,7 @@ type Inputs = {
   filterTestCaseSlowerThan: number
   sendTestCaseSuccess: boolean
   sendTestCaseFailure: boolean
+  enableMetrics: boolean
   datadogApiKey: string
   datadogSite: string
   datadogTags: string[]

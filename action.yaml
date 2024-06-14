@@ -21,6 +21,10 @@ inputs:
     description: Send failed test cases
     required: true
     default: 'true'
+  enable-metrics:
+    description: If false, do not send the metrics to Datadog
+    required: true
+    default: 'true'
   datadog-api-key:
     description: Datadog API key
     required: false
