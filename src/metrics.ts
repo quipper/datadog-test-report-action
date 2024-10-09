@@ -88,7 +88,7 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
       })
     }
   } else {
-    core.error(`FAILURE: ${testCase['@_name']}`)
+    core.error(`FAIL: ${testCase['@_name']}`)
     if (context.sendTestCaseFailure) {
       metrics.series.push({
         metric: `${context.prefix}.testcase.failure_count`,
