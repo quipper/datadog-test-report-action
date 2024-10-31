@@ -87,4 +87,48 @@ describe('parseJunitXml', () => {
       },
     })
   })
+
+  it('should parse jest.xml', () => {
+    const xml = fs.readFileSync(path.join(__dirname, 'fixtures', 'jest.xml'), 'utf8')
+    const junixXml = parseJunitXml(xml)
+    expect(junixXml).toEqual({
+      '?xml': {
+        '@_version': '1.0',
+        '@_encoding': 'UTF-8',
+      },
+      testsuites: {
+        '@_errors': '0',
+        '@_failures': '1',
+        '@_name': 'jest tests',
+        '@_tests': '2',
+        '@_time': 0.4,
+        testsuite: [
+          {
+            '@_errors': '0',
+            '@_failures': '1',
+            '@_name': 'example',
+            '@_skipped': '0',
+            '@_tests': '2',
+            '@_time': 0.3,
+            '@_timestamp': '2024-10-31T04:07:52',
+            testcase: [
+              {
+                '@_classname': 'example1',
+                '@_name': 'example1',
+                '@_time': 0.1,
+                failure: {
+                  '#text': 'Error: expect(received).toBe(expected)...',
+                },
+              },
+              {
+                '@_classname': 'example2',
+                '@_name': 'example2',
+                '@_time': 0.2,
+              },
+            ],
+          },
+        ],
+      },
+    })
+  })
 })
