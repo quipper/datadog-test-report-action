@@ -108,6 +108,7 @@ export const parseJunitXml = (xml: string | Buffer): JunitXml => {
   const parser = new XMLParser({
     ignoreAttributes: false,
     removeNSPrefix: true,
+    alwaysCreateTextNode: true,
     isArray: (_: string, jPath: string): boolean => {
       const elementName = jPath.split('.').pop()
       return ['testsuite', 'testcase'].includes(elementName ?? '')
