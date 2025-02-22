@@ -1,12 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     ":automergeMinor",
     ":automergeDigest",
     ":reviewer(quipper/k12-dev-tech-strategy-devops)",
     ":labels(renovate,renovate/{{depName}})",
     "github>int128/typescript-action-renovate-config#v1.7.0",
-    "helpers:pinGitHubActionDigests",
-  ]
+    "helpers:pinGitHubActionDigests"
+  ],
+  "platformAutomerge": false
 }
