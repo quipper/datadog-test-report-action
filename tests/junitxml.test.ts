@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import { describe, expect, it } from 'vitest'
 import { parseJunitXml } from '../src/junitxml.js'
 
 describe('parseJunitXml', () => {
