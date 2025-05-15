@@ -24,6 +24,8 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     `repository_owner:${context.repo.owner}`,
     `repository_name:${context.repo.repo}`,
     `workflow_name:${context.workflow}`,
+    `event_name:${context.eventName}`,
+    `ref_name:${context.refName}`,
   ]
 
   const metricsContext = {

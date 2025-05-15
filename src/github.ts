@@ -6,6 +6,7 @@ export type Context = {
     repo: string
   }
   eventName: string
+  refName: string
   sha: string
   workflow: string
 }
@@ -15,6 +16,7 @@ export const getContext = (): Context => {
   return {
     repo: getRepo(),
     eventName: getEnv('GITHUB_EVENT_NAME'),
+    refName: getEnv('GITHUB_REF_NAME'),
     sha: getEnv('GITHUB_SHA'),
     workflow: getEnv('GITHUB_WORKFLOW'),
   }
