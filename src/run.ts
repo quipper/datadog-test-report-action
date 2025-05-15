@@ -4,6 +4,7 @@ import * as glob from '@actions/glob'
 import { createMetricsClient } from './client.js'
 import { parseJunitXml } from './junitxml.js'
 import { getJunitXmlMetrics, unixTime } from './metrics.js'
+import { Context } from './github.js'
 
 type Inputs = {
   junitXmlPath: string
@@ -15,17 +16,14 @@ type Inputs = {
   datadogApiKey: string
   datadogSite: string
   datadogTags: string[]
-  repositoryOwner: string
-  repositoryName: string
-  workflowName: string
 }
 
-export const run = async (inputs: Inputs): Promise<void> => {
+export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const workflowTags = [
     // Keep less cardinality for cost perspective.
-    `repository_owner:${inputs.repositoryOwner}`,
-    `repository_name:${inputs.repositoryName}`,
-    `workflow_name:${inputs.workflowName}`,
+    `repository_owner:${context.repo.owner}`,
+    `repository_name:${context.repo.repo}`,
+    `workflow_name:${context.workflow}`,
   ]
 
   const metricsContext = {
