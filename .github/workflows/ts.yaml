@@ -32,13 +32,13 @@ jobs:
       - run: pnpm run test
       - run: pnpm run build
 
-      - name: quipper/datadog-test-report-action
+      - name: quipper/test-report-observability-action
         uses: ./
         with:
           enable-metrics: false
           junit-xml-path: junit.xml
           datadog-tags: |
-            service:datadog-test-report-action
+            service:test-report-observability-action
 
   generate:
     runs-on: ubuntu-latest
