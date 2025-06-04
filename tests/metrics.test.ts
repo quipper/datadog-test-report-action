@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { JunitXml } from '../src/junitxml.js'
-import { getJunitXmlMetrics } from '../src/metrics.js'
+import { createMatcher } from '../src/codeowners.js'
+import { Context, getJunitXmlMetrics } from '../src/metrics.js'
 
 describe('getJunitXmlMetrics', () => {
   it('returns metrics for a valid JUnit XML', () => {
@@ -78,13 +79,15 @@ describe('getJunitXmlMetrics', () => {
         ],
       },
     }
-    const context = {
+    const context: Context = {
       prefix: 'testreport',
       tags: ['env:ci'],
       timestamp: 1234567890,
       filterTestCaseSlowerThan: 1,
       sendTestCaseSuccess: true,
       sendTestCaseFailure: true,
+      codeownersMatcher: createMatcher(''),
+      testCaseBaseDirectory: '',
     }
 
     const metrics = getJunitXmlMetrics(junitXml, context)
