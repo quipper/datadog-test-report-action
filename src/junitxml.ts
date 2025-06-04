@@ -115,7 +115,10 @@ export const parseJunitXml = (xml: string | Buffer): JunitXml => {
     },
     attributeValueProcessor: (attrName: string, attrValue: string, jPath: string) => {
       const elementName = jPath.split('.').pop()
-      if (attrName === 'time' && (elementName === 'testsuites' || elementName === 'testsuite' || elementName === 'testcase')) {
+      if (
+        attrName === 'time' &&
+        (elementName === 'testsuites' || elementName === 'testsuite' || elementName === 'testcase')
+      ) {
         return Number(attrValue)
       }
       return attrValue
