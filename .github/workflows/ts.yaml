@@ -37,6 +37,7 @@ jobs:
         with:
           enable-metrics: false
           junit-xml-path: junit.xml
+          codeowners: CODEOWNERS
           datadog-tags: |
             service:test-report-observability-action
 

@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as fs from 'fs/promises'
 import * as glob from '@actions/glob'
+import { createMatcher } from './codeowners.js'
 import { createMetricsClient } from './datadog.js'
 import { parseJunitXml } from './junitxml.js'
 import { getJunitXmlMetrics } from './metrics.js'
@@ -12,6 +13,8 @@ type Inputs = {
   filterTestCaseSlowerThan: number
   sendTestCaseSuccess: boolean
   sendTestCaseFailure: boolean
+  codeowners: string
+  testCaseBaseDirectory: string
   enableMetrics: boolean
   datadogApiKey: string
   datadogSite: string
@@ -35,6 +38,8 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     filterTestCaseSlowerThan: inputs.filterTestCaseSlowerThan,
     sendTestCaseSuccess: inputs.sendTestCaseSuccess,
     sendTestCaseFailure: inputs.sendTestCaseFailure,
+    codeownersMatcher: await createCodeownersMatcher(inputs.codeowners),
+    testCaseBaseDirectory: inputs.testCaseBaseDirectory,
   }
   core.info(`Metrics context: ${JSON.stringify(metricsContext, undefined, 2)}`)
 
@@ -53,6 +58,13 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     await metricsClient.submitMetrics(metrics.series, junitXmlPath)
     await metricsClient.submitDistributionPoints(metrics.distributionPointsSeries, junitXmlPath)
   }
+}
+
+const createCodeownersMatcher = async (codeowners: string) => {
+  if (!codeowners) {
+    return createMatcher('')
+  }
+  return createMatcher(await fs.readFile(codeowners, 'utf8'))
 }
 
 const unixTime = (date: Date): number => Math.floor(date.getTime() / 1000)

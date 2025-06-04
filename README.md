@@ -90,6 +90,20 @@ You can set `filter-test-case-slower-than` to send all test cases.
     filter-test-case-slower-than: 0
 ```
 
+## Tags
+
+### `testcase_owner` tag
+
+You can set the CODEOWNERS to identify the owner of a test case.
+
+```yaml
+- uses: quipper/test-report-observability-action@v0
+  with:
+    codeowners: .github/CODEOWNERS
+    junit-xml-path: microservice/junit.xml
+    test-case-base-directory: microservice
+```
+
 ## Specification
 
 ### Inputs
@@ -102,6 +116,8 @@ You can set `filter-test-case-slower-than` to send all test cases.
 | `enable-metrics`               | true         | If false, do not send the metrics to Datadog             |
 | `send-test-case-success`       | false        | Send succeeded test cases                                |
 | `send-test-case-failure`       | true         | Send failed test cases                                   |
+| `codeowners`                   | -            | Path to the CODEOWNERS file                              |
+| `test-case-base-directory`     | -            | Base directory to resolve the test case file path        |
 | `datadog-api-key`              | -            | Datadog API key                                          |
 | `datadog-site`                 | -            | Datadog site                                             |
 | `datadog-tags`                 | -            | Datadog tags                                             |
