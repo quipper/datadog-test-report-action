@@ -51,6 +51,7 @@ const getTestSuiteMetrics = (testSuite: TestSuite, context: Context): Metrics =>
       tags,
     })
   }
+
   for (const testCase of testSuite.testcase ?? []) {
     const tcm = getTestCaseMetrics(testCase, context)
     metrics.series.push(...tcm.series)

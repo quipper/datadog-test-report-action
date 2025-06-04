@@ -1,6 +1,6 @@
 # test-report-observability-action [![ts](https://github.com/quipper/test-report-observability-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/quipper/test-report-observability-action/actions/workflows/ts.yaml)
 
-This is an action to send test report to Datadog.
+This is an action for the observability of test reports.
 It supports the JUnit XML format.
 
 ## Getting Started
