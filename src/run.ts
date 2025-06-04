@@ -3,7 +3,7 @@ import * as fs from 'fs/promises'
 import * as glob from '@actions/glob'
 import { createMetricsClient } from './datadog.js'
 import { parseJunitXml } from './junitxml.js'
-import { getJunitXmlMetrics, unixTime } from './metrics.js'
+import { getJunitXmlMetrics } from './metrics.js'
 import { Context } from './github.js'
 
 type Inputs = {
@@ -54,3 +54,5 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     await metricsClient.submitDistributionPoints(metrics.distributionPointsSeries, junitXmlPath)
   }
 }
+
+const unixTime = (date: Date): number => Math.floor(date.getTime() / 1000)

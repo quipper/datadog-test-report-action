@@ -18,24 +18,23 @@ export type Context = {
 
 export const getJunitXmlMetrics = (junitXml: JunitXml, context: Context): Metrics => {
   const testSuites = junitXml.testsuites?.testsuite ?? junitXml.testsuite ?? []
-  const metrics: Metrics = {
-    series: [],
-    distributionPointsSeries: [],
-  }
-  for (const testSuite of testSuites) {
-    const tsm = getTestSuiteMetrics(testSuite, context)
-    metrics.series.push(...tsm.series)
-    metrics.distributionPointsSeries.push(...tsm.distributionPointsSeries)
-  }
-  return metrics
+  return joinMetrics(...testSuites.map((testSuite) => traverseTestSuite(testSuite, context)))
+}
+
+const traverseTestSuite = (testSuite: TestSuite, context: Context): Metrics => {
+  const testSuiteMetrics = getTestSuiteMetrics(testSuite, context)
+
+  const nestedTestSuite = testSuite.testsuite ?? []
+  const nestedTestSuiteMetrics = nestedTestSuite.map((nestedTestSuite) => traverseTestSuite(nestedTestSuite, context))
+  return joinMetrics(testSuiteMetrics, ...nestedTestSuiteMetrics)
 }
 
 const getTestSuiteMetrics = (testSuite: TestSuite, context: Context): Metrics => {
+  const tags = [...context.tags, `testsuite_name:${testSuite['@_name']}`]
   const metrics: Metrics = {
     series: [],
     distributionPointsSeries: [],
   }
-  const tags = [...context.tags, `testsuite_name:${testSuite['@_name']}`]
 
   metrics.series.push({
     metric: `${context.prefix}.testsuite.count`,
@@ -43,6 +42,7 @@ const getTestSuiteMetrics = (testSuite: TestSuite, context: Context): Metrics =>
     type: 'count',
     tags,
   })
+
   const duration = testSuite['@_time']
   if (duration > 0) {
     metrics.distributionPointsSeries.push({
@@ -52,31 +52,23 @@ const getTestSuiteMetrics = (testSuite: TestSuite, context: Context): Metrics =>
     })
   }
 
-  for (const testCase of testSuite.testcase ?? []) {
-    const tcm = getTestCaseMetrics(testCase, context)
-    metrics.series.push(...tcm.series)
-    metrics.distributionPointsSeries.push(...tcm.distributionPointsSeries)
-  }
-
-  for (const childTestSuite of testSuite.testsuite ?? []) {
-    const tsm = getTestSuiteMetrics(childTestSuite, context)
-    metrics.series.push(...tsm.series)
-    metrics.distributionPointsSeries.push(...tsm.distributionPointsSeries)
-  }
-  return metrics
+  const testCases = testSuite.testcase ?? []
+  const testCaseMetrics = testCases.map((testCase) => getTestCaseMetrics(testCase, context))
+  return joinMetrics(metrics, ...testCaseMetrics)
 }
 
 const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
-  const metrics: Metrics = {
-    series: [],
-    distributionPointsSeries: [],
-  }
   const tags = [...context.tags, `testcase_name:${testCase['@_name']}`]
   if (testCase['@_classname']) {
     tags.push(`testcase_classname:${testCase['@_classname']}`)
   }
   if (testCase['@_file']) {
     tags.push(`testcase_file:${testCase['@_file']}`)
+  }
+
+  const metrics: Metrics = {
+    series: [],
+    distributionPointsSeries: [],
   }
 
   if (!testCase.failure && !testCase.error) {
@@ -112,4 +104,14 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
   return metrics
 }
 
-export const unixTime = (date: Date): number => Math.floor(date.getTime() / 1000)
+const joinMetrics = (...metricsArray: Metrics[]): Metrics => {
+  const joined: Metrics = {
+    series: [],
+    distributionPointsSeries: [],
+  }
+  for (const metrics of metricsArray) {
+    joined.series.push(...metrics.series)
+    joined.distributionPointsSeries.push(...metrics.distributionPointsSeries)
+  }
+  return joined
+}
