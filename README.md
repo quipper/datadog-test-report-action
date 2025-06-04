@@ -94,13 +94,24 @@ You can set `filter-test-case-slower-than` to send all test cases.
 
 ### `testcase_owner` tag
 
-You can set the CODEOWNERS to identify the owner of a test case.
+You can set `codeowners` to add the `testcase_owner` tag to the test case metrics.
+It parses the CODEOWNERS file and finds the owner of the test case file.
 
 ```yaml
 - uses: quipper/test-report-observability-action@v0
   with:
-    codeowners: .github/CODEOWNERS
+    junit-xml-path: junit.xml
+    codeowners: CODEOWNERS
+```
+
+If the test report contains a relative path to the test case file,
+you can set `test-case-base-directory` to resolve the path.
+
+```yaml
+- uses: quipper/test-report-observability-action@v0
+  with:
     junit-xml-path: microservice/junit.xml
+    codeowners: CODEOWNERS
     test-case-base-directory: microservice
 ```
 
