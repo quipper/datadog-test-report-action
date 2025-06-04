@@ -41,7 +41,9 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     codeownersMatcher: await createCodeownersMatcher(inputs.codeowners),
     testCaseBaseDirectory: inputs.testCaseBaseDirectory,
   }
-  core.info(`Metrics context: ${JSON.stringify(metricsContext, undefined, 2)}`)
+  core.startGroup('Metrics context')
+  core.info(JSON.stringify(metricsContext, undefined, 2))
+  core.endGroup()
 
   const metricsClient = createMetricsClient(inputs)
   const junitXmlGlob = await glob.create(inputs.junitXmlPath)
