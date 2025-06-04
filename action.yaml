@@ -1,4 +1,4 @@
-name: datadog-test-report-action
+name: test-report-observability-action
 description: Send test reports to Datadog
 
 inputs:

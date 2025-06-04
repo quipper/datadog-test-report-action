@@ -1,4 +1,4 @@
-# datadog-test-report-action [![ts](https://github.com/quipper/datadog-test-report-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/quipper/datadog-test-report-action/actions/workflows/ts.yaml)
+# test-report-observability-action [![ts](https://github.com/quipper/test-report-observability-action/actions/workflows/ts.yaml/badge.svg)](https://github.com/quipper/test-report-observability-action/actions/workflows/ts.yaml)
 
 This is an action to send test report to Datadog.
 It supports the JUnit XML format.
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: yarn test
-      - uses: quipper/datadog-test-report-action@v1
+      - uses: quipper/test-report-observability-action@v0
         with:
           junit-xml-path: '**/junit.xml'
 ```
@@ -54,7 +54,7 @@ You can set `send-test-case-success` to send all test cases.
 :warning: It may increase the custom metrics cost.
 
 ```yaml
-- uses: quipper/datadog-test-report-action@v1
+- uses: quipper/test-report-observability-action@v0
   with:
     junit-xml-path: '**/junit.xml'
     send-test-case-success: true
@@ -84,7 +84,7 @@ You can set `filter-test-case-slower-than` to send all test cases.
 :warning: It may increase the custom metrics cost.
 
 ```yaml
-- uses: quipper/datadog-test-report-action@v1
+- uses: quipper/test-report-observability-action@v0
   with:
     junit-xml-path: '**/junit.xml'
     filter-test-case-slower-than: 0
