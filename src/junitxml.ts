@@ -111,17 +111,20 @@ export const parseJunitXml = (xml: string | Buffer): JunitXml => {
     alwaysCreateTextNode: true,
     isArray: (_: string, jPath: string): boolean => {
       const elementName = jPath.split('.').pop()
-      return ['testsuite', 'testcase'].includes(elementName ?? '')
+      return elementName === 'testsuite' || elementName === 'testcase'
     },
     attributeValueProcessor: (attrName: string, attrValue: string, jPath: string) => {
       const elementName = jPath.split('.').pop()
-      if (attrName === 'time' && ['testsuites', 'testsuite', 'testcase'].includes(elementName ?? '')) {
+      if (
+        attrName === 'time' &&
+        (elementName === 'testsuites' || elementName === 'testsuite' || elementName === 'testcase')
+      ) {
         return Number(attrValue)
       }
       return attrValue
     },
   })
-  const parsed: unknown = parser.parse(xml)
-  assertJunitXml(parsed)
-  return parsed
+  const parsedXml: unknown = parser.parse(xml)
+  assertJunitXml(parsedXml)
+  return parsedXml
 }
