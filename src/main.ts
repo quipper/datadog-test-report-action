@@ -10,6 +10,8 @@ const main = async (): Promise<void> => {
       filterTestCaseSlowerThan: parseFloat(core.getInput('filter-test-case-slower-than', { required: true })),
       sendTestCaseSuccess: core.getBooleanInput('send-test-case-success', { required: true }),
       sendTestCaseFailure: core.getBooleanInput('send-test-case-failure', { required: true }),
+      codeowners: core.getInput('codeowners'),
+      testCaseBaseDirectory: core.getInput('test-case-base-directory'),
       enableMetrics: core.getBooleanInput('enable-metrics', { required: true }),
       datadogApiKey: core.getInput('datadog-api-key'),
       datadogSite: core.getInput('datadog-site'),

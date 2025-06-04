@@ -1,5 +1,7 @@
 import * as core from '@actions/core'
+import * as path from 'path'
 import { v1 } from '@datadog/datadog-api-client'
+import { Matcher } from './codeowners.js'
 import { JunitXml, TestCase, TestSuite } from './junitxml.js'
 
 export type Metrics = {
@@ -14,6 +16,8 @@ export type Context = {
   filterTestCaseSlowerThan: number
   sendTestCaseSuccess: boolean
   sendTestCaseFailure: boolean
+  codeownersMatcher: Matcher
+  testCaseBaseDirectory: string
 }
 
 export const getJunitXmlMetrics = (junitXml: JunitXml, context: Context): Metrics => {
@@ -62,8 +66,10 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
   if (testCase['@_classname']) {
     tags.push(`testcase_classname:${testCase['@_classname']}`)
   }
+
   if (testCase['@_file']) {
     tags.push(`testcase_file:${testCase['@_file']}`)
+    tags.push(...getOwnerTags(testCase['@_file'], context))
   }
 
   const metrics: Metrics = {
@@ -102,6 +108,14 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
   }
 
   return metrics
+}
+
+const getOwnerTags = (file: string, context: Context): string[] => {
+  const canonicalPath = path.join(context.testCaseBaseDirectory, file)
+  return context.codeownersMatcher
+    .findOwners(canonicalPath)
+    .map((owner) => owner.replace(/^@.+?\/|^@/, '')) // Remove leading @organization/
+    .map((owner) => `testcase_owner:${owner}`)
 }
 
 const joinMetrics = (...metricsArray: Metrics[]): Metrics => {
