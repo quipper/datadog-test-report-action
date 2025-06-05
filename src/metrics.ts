@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as path from 'path'
 import { v1 } from '@datadog/datadog-api-client'
 import { Matcher } from './codeowners.js'
-import { JunitXml, TestCase, TestSuite } from './junitxml.js'
+import { TestReport, TestFile, TestCase } from './junitxml.js'
 
 export type Metrics = {
   series: v1.Series[]
@@ -13,6 +13,7 @@ export type Context = {
   prefix: string
   tags: string[]
   timestamp: number
+  filterTestFileSlowerThan: number
   filterTestCaseSlowerThan: number
   sendTestCaseSuccess: boolean
   sendTestCaseFailure: boolean
@@ -20,64 +21,45 @@ export type Context = {
   testCaseBaseDirectory: string
 }
 
-export const getJunitXmlMetrics = (junitXml: JunitXml, context: Context): Metrics => {
-  const testSuites = junitXml.testsuites?.testsuite ?? junitXml.testsuite ?? []
-  return joinMetrics(...testSuites.map((testSuite) => traverseTestSuite(testSuite, context)))
+export const getTestReportMetrics = (testReport: TestReport, context: Context): Metrics => {
+  return joinMetrics(
+    ...testReport.testFiles.map((testFile) => getTestFileMetrics(testFile, context)),
+    ...testReport.testCases.map((testCase) => getTestCaseMetrics(testCase, context)),
+  )
 }
 
-const traverseTestSuite = (testSuite: TestSuite, context: Context): Metrics => {
-  const testSuiteMetrics = getTestSuiteMetrics(testSuite, context)
-
-  const nestedTestSuite = testSuite.testsuite ?? []
-  const nestedTestSuiteMetrics = nestedTestSuite.map((nestedTestSuite) => traverseTestSuite(nestedTestSuite, context))
-  return joinMetrics(testSuiteMetrics, ...nestedTestSuiteMetrics)
-}
-
-const getTestSuiteMetrics = (testSuite: TestSuite, context: Context): Metrics => {
-  const tags = [...context.tags, `testsuite_name:${testSuite['@_name']}`]
+const getTestFileMetrics = (testFile: TestFile, context: Context): Metrics => {
+  const tags = [...context.tags, `testfile_name:${testFile.filename}`]
   const metrics: Metrics = {
     series: [],
     distributionPointsSeries: [],
   }
 
-  metrics.series.push({
-    metric: `${context.prefix}.testsuite.count`,
-    points: [[context.timestamp, 1]],
-    type: 'count',
-    tags,
-  })
-
-  const duration = testSuite['@_time']
-  if (duration > 0) {
+  const duration = testFile.totalTime
+  if (duration > context.filterTestFileSlowerThan) {
     metrics.distributionPointsSeries.push({
-      metric: `${context.prefix}.testsuite.duration`,
+      metric: `${context.prefix}.testfile.duration`,
       points: [[context.timestamp, [duration]]],
       tags,
     })
   }
 
-  const testCases = testSuite.testcase ?? []
-  const testCaseMetrics = testCases.map((testCase) => getTestCaseMetrics(testCase, context))
-  return joinMetrics(metrics, ...testCaseMetrics)
+  return metrics
 }
 
 const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
-  const tags = [...context.tags, `testcase_name:${testCase['@_name']}`]
-  if (testCase['@_classname']) {
-    tags.push(`testcase_classname:${testCase['@_classname']}`)
-  }
-
-  if (testCase['@_file']) {
-    tags.push(`testcase_file:${testCase['@_file']}`)
-    tags.push(...getOwnerTags(testCase['@_file'], context))
-  }
-
+  const tags = [
+    ...context.tags,
+    `testcase_name:${testCase.name}`,
+    `testcase_file:${testCase.filename}`,
+    ...getOwnerTags(testCase.filename, context),
+  ]
   const metrics: Metrics = {
     series: [],
     distributionPointsSeries: [],
   }
 
-  if (!testCase.failure && !testCase.error) {
+  if (testCase.success) {
     if (context.sendTestCaseSuccess) {
       metrics.series.push({
         metric: `${context.prefix}.testcase.success_count`,
@@ -87,7 +69,7 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
       })
     }
   } else {
-    core.error(`FAIL: ${testCase['@_name']}`)
+    core.error(`FAIL: ${testCase.name}`)
     if (context.sendTestCaseFailure) {
       metrics.series.push({
         metric: `${context.prefix}.testcase.failure_count`,
@@ -98,7 +80,7 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
     }
   }
 
-  const duration = testCase['@_time']
+  const duration = testCase.time
   if (duration > context.filterTestCaseSlowerThan) {
     metrics.distributionPointsSeries.push({
       metric: `${context.prefix}.testcase.duration`,

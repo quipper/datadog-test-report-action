@@ -26,19 +26,23 @@ All metrics have the following tags:
 - `repository_name`
 - `workflow_name`
 
-### `testreport.testsuite.count` (count)
+### `testreport.testfile.duration` (distribution)
 
-This metric represents the number of test suites.
+This metric represents the duration of test files in seconds.
 It has the following tags:
 
-- `testsuite_name`
+- `testfile_name`
 
-### `testreport.testsuite.duration` (distribution)
+This action sends test files **slower than 1 second by default**.
+You can set `filter-test-file-slower-than` to send all test files.
+:warning: It may increase the custom metrics cost.
 
-This metric represents the duration of test suites in seconds.
-It has the following tags:
-
-- `testsuite_name`
+```yaml
+- uses: quipper/test-report-observability-action@v0
+  with:
+    junit-xml-path: '**/junit.xml'
+    filter-test-file-slower-than: 0
+```
 
 ### `testreport.testcase.success_count` (count)
 
@@ -46,7 +50,6 @@ This metric represents the number of succeeded test cases.
 It has the following tags:
 
 - `testcase_name`
-- `testcase_classname`
 - `testcase_file`
 
 This actions sends **only failed test cases by default**.
@@ -66,7 +69,6 @@ This metric represents the number of failed test cases.
 It has the following tags:
 
 - `testcase_name`
-- `testcase_classname`
 - `testcase_file`
 
 ### `testreport.testcase.duration` (distribution)
@@ -76,7 +78,6 @@ It has the following tags:
 
 - `testcase_name`
 - `testcase_conclusion` (`success` or `failure`)
-- `testcase_classname`
 - `testcase_file`
 
 This action sends test cases **slower than 1 second by default**.
@@ -116,6 +117,7 @@ you can set `test-case-base-directory` to resolve the path.
 | ------------------------------ | ------------ | -------------------------------------------------------- |
 | `junit-xml-path`               | (required)   | Glob pattern to the JUnit XML file(s)                    |
 | `metric-name-prefix`           | `testreport` | Prefix of the name of metrics                            |
+| `filter-test-file-slower-than` | 1            | Filter test files slower than the threshold (in seconds) |
 | `filter-test-case-slower-than` | 1            | Filter test cases slower than the threshold (in seconds) |
 | `enable-metrics`               | true         | If false, do not send the metrics to Datadog             |
 | `send-test-case-success`       | false        | Send succeeded test cases                                |
