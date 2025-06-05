@@ -21,9 +21,6 @@ inputs:
     description: Send failed test cases
     required: true
     default: 'true'
-  codeowners:
-    description: Path to the CODEOWNERS file
-    required: false
   test-case-base-directory:
     description: Base directory to resolve the test case file path
     required: false
