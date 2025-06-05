@@ -39,7 +39,6 @@ jobs:
           junit-xml-path: junit.xml
           send-test-case-success: true
           filter-test-case-slower-than: 0
-          codeowners: CODEOWNERS
           datadog-tags: |
             service:test-report-observability-action
 

@@ -13,7 +13,6 @@ type Inputs = {
   filterTestCaseSlowerThan: number
   sendTestCaseSuccess: boolean
   sendTestCaseFailure: boolean
-  codeowners: string
   testCaseBaseDirectory: string
   enableMetrics: boolean
   datadogApiKey: string
@@ -38,7 +37,7 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     filterTestCaseSlowerThan: inputs.filterTestCaseSlowerThan,
     sendTestCaseSuccess: inputs.sendTestCaseSuccess,
     sendTestCaseFailure: inputs.sendTestCaseFailure,
-    codeownersMatcher: await createCodeownersMatcher(inputs.codeowners),
+    codeownersMatcher: await createCodeownersMatcher(),
     testCaseBaseDirectory: inputs.testCaseBaseDirectory,
   }
   core.startGroup('Metrics context')
@@ -62,10 +61,22 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   }
 }
 
-const createCodeownersMatcher = async (codeowners: string) => {
+const createCodeownersMatcher = async () => {
+  const tryAccess = async (path: string): Promise<string | null> => {
+    try {
+      await fs.access(path)
+      return path
+    } catch {
+      return null
+    }
+  }
+  // https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#codeowners-file-location
+  const codeowners =
+    (await tryAccess('.github/CODEOWNERS')) ?? (await tryAccess('CODEOWNERS')) ?? (await tryAccess('docs/CODEOWNERS'))
   if (!codeowners) {
     return createMatcher('')
   }
+  core.info(`Parsing ${codeowners}`)
   return createMatcher(await fs.readFile(codeowners, 'utf8'))
 }
 
