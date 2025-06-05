@@ -1,21 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`getJunitXmlMetrics > returns metrics for a valid JUnit XML 1`] = `
+exports[`getTestReportMetrics > returns metrics for a test report 1`] = `
 [
-  {
-    "metric": "testreport.testsuite.count",
-    "points": [
-      [
-        1234567890,
-        1,
-      ],
-    ],
-    "tags": [
-      "env:ci",
-      "testsuite_name:Tests.Registration",
-    ],
-    "type": "count",
-  },
   {
     "metric": "testreport.testcase.success_count",
     "points": [
@@ -27,7 +13,7 @@ exports[`getJunitXmlMetrics > returns metrics for a valid JUnit XML 1`] = `
     "tags": [
       "env:ci",
       "testcase_name:testCase1",
-      "testcase_classname:Tests.Registration",
+      "testcase_file:tests/registration.test.js",
     ],
     "type": "count",
   },
@@ -42,7 +28,7 @@ exports[`getJunitXmlMetrics > returns metrics for a valid JUnit XML 1`] = `
     "tags": [
       "env:ci",
       "testcase_name:testCase2",
-      "testcase_classname:Tests.Registration",
+      "testcase_file:tests/registration.test.js",
     ],
     "type": "count",
   },
@@ -57,80 +43,7 @@ exports[`getJunitXmlMetrics > returns metrics for a valid JUnit XML 1`] = `
     "tags": [
       "env:ci",
       "testcase_name:testCase3",
-      "testcase_classname:Tests.Registration",
-    ],
-    "type": "count",
-  },
-  {
-    "metric": "testreport.testsuite.count",
-    "points": [
-      [
-        1234567890,
-        1,
-      ],
-    ],
-    "tags": [
-      "env:ci",
-      "testsuite_name:Tests.Authentication",
-    ],
-    "type": "count",
-  },
-  {
-    "metric": "testreport.testcase.success_count",
-    "points": [
-      [
-        1234567890,
-        1,
-      ],
-    ],
-    "tags": [
-      "env:ci",
-      "testcase_name:testCase7",
-      "testcase_classname:Tests.Authentication",
-    ],
-    "type": "count",
-  },
-  {
-    "metric": "testreport.testcase.success_count",
-    "points": [
-      [
-        1234567890,
-        1,
-      ],
-    ],
-    "tags": [
-      "env:ci",
-      "testcase_name:testCase8",
-      "testcase_classname:Tests.Authentication",
-    ],
-    "type": "count",
-  },
-  {
-    "metric": "testreport.testcase.failure_count",
-    "points": [
-      [
-        1234567890,
-        1,
-      ],
-    ],
-    "tags": [
-      "env:ci",
-      "testcase_name:testCase9",
-      "testcase_classname:Tests.Authentication",
-    ],
-    "type": "count",
-  },
-  {
-    "metric": "testreport.testsuite.count",
-    "points": [
-      [
-        1234567890,
-        1,
-      ],
-    ],
-    "tags": [
-      "env:ci",
-      "testsuite_name:Tests.Authentication.Login",
+      "testcase_file:tests/registration.test.js",
     ],
     "type": "count",
   },
@@ -145,7 +58,7 @@ exports[`getJunitXmlMetrics > returns metrics for a valid JUnit XML 1`] = `
     "tags": [
       "env:ci",
       "testcase_name:testCase4",
-      "testcase_classname:Tests.Authentication.Login",
+      "testcase_file:tests/registration.test.js",
     ],
     "type": "count",
   },
@@ -160,7 +73,7 @@ exports[`getJunitXmlMetrics > returns metrics for a valid JUnit XML 1`] = `
     "tags": [
       "env:ci",
       "testcase_name:testCase5",
-      "testcase_classname:Tests.Authentication.Login",
+      "testcase_file:tests/registration.test.js",
     ],
     "type": "count",
   },
@@ -175,7 +88,52 @@ exports[`getJunitXmlMetrics > returns metrics for a valid JUnit XML 1`] = `
     "tags": [
       "env:ci",
       "testcase_name:testCase6",
-      "testcase_classname:Tests.Authentication.Login",
+      "testcase_file:tests/registration.test.js",
+    ],
+    "type": "count",
+  },
+  {
+    "metric": "testreport.testcase.success_count",
+    "points": [
+      [
+        1234567890,
+        1,
+      ],
+    ],
+    "tags": [
+      "env:ci",
+      "testcase_name:testCase7",
+      "testcase_file:tests/registration.test.js",
+    ],
+    "type": "count",
+  },
+  {
+    "metric": "testreport.testcase.success_count",
+    "points": [
+      [
+        1234567890,
+        1,
+      ],
+    ],
+    "tags": [
+      "env:ci",
+      "testcase_name:testCase8",
+      "testcase_file:tests/registration.test.js",
+    ],
+    "type": "count",
+  },
+  {
+    "metric": "testreport.testcase.failure_count",
+    "points": [
+      [
+        1234567890,
+        1,
+      ],
+    ],
+    "tags": [
+      "env:ci",
+      "testcase_name:testCase9",
+      "testcase_file:tests/registration.test.js",
     ],
     "type": "count",
   },

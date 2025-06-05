@@ -1,88 +1,80 @@
 import { describe, expect, it } from 'vitest'
-import { JunitXml } from '../src/junitxml.js'
 import { createMatcher } from '../src/codeowners.js'
-import { Context, getJunitXmlMetrics } from '../src/metrics.js'
+import { TestReport } from '../src/junitxml.js'
+import { Context, getTestReportMetrics } from '../src/metrics.js'
 
-describe('getJunitXmlMetrics', () => {
-  it('returns metrics for a valid JUnit XML', () => {
-    const junitXml: JunitXml = {
-      testsuites: {
-        testsuite: [
-          {
-            '@_name': 'Tests.Registration',
-            '@_time': 6.605871,
-            testcase: [
-              {
-                '@_classname': 'Tests.Registration',
-                '@_name': 'testCase1',
-                '@_time': 2.113871,
-              },
-              {
-                '@_classname': 'Tests.Registration',
-                '@_name': 'testCase2',
-                '@_time': 1.051,
-              },
-              {
-                '@_classname': 'Tests.Registration',
-                '@_name': 'testCase3',
-                '@_time': 3.441,
-              },
-            ],
-          },
-          {
-            testsuite: [
-              {
-                '@_name': 'Tests.Authentication.Login',
-                '@_time': 4.356,
-                testcase: [
-                  {
-                    '@_name': 'testCase4',
-                    '@_classname': 'Tests.Authentication.Login',
-                    '@_time': 2.244,
-                  },
-                  {
-                    '@_name': 'testCase5',
-                    '@_classname': 'Tests.Authentication.Login',
-                    '@_time': 0.781,
-                  },
-                  {
-                    '@_name': 'testCase6',
-                    '@_classname': 'Tests.Authentication.Login',
-                    '@_time': 1.331,
-                  },
-                ],
-              },
-            ],
-            '@_name': 'Tests.Authentication',
-            '@_time': 9.076816,
-            testcase: [
-              {
-                '@_name': 'testCase7',
-                '@_classname': 'Tests.Authentication',
-                '@_time': 2.508,
-              },
-              {
-                '@_name': 'testCase8',
-                '@_classname': 'Tests.Authentication',
-                '@_time': 1.230816,
-              },
-              {
-                failure: {
-                  '@_message': 'Assertion error message',
-                },
-                '@_name': 'testCase9',
-                '@_classname': 'Tests.Authentication',
-                '@_time': 0.982,
-              },
-            ],
-          },
-        ],
-      },
+describe('getTestReportMetrics', () => {
+  it('returns metrics for a test report', () => {
+    const testReport: TestReport = {
+      testCases: [
+        {
+          name: 'testCase1',
+          filename: 'tests/registration.test.js',
+          time: 2.113871,
+          success: true,
+        },
+        {
+          name: 'testCase2',
+          filename: 'tests/registration.test.js',
+          time: 1.051,
+          success: true,
+        },
+        {
+          name: 'testCase3',
+          filename: 'tests/registration.test.js',
+          time: 3.441,
+          success: true,
+        },
+        {
+          name: 'testCase4',
+          filename: 'tests/registration.test.js',
+          time: 2.244,
+          success: true,
+        },
+        {
+          name: 'testCase5',
+          filename: 'tests/registration.test.js',
+          time: 0.781,
+          success: true,
+        },
+        {
+          name: 'testCase6',
+          filename: 'tests/registration.test.js',
+          time: 1.331,
+          success: true,
+        },
+        {
+          name: 'testCase7',
+          filename: 'tests/registration.test.js',
+          time: 2.508,
+          success: true,
+        },
+        {
+          name: 'testCase8',
+          filename: 'tests/registration.test.js',
+          time: 1.230816,
+          success: true,
+        },
+        {
+          name: 'testCase9',
+          filename: 'tests/registration.test.js',
+          time: 0.982,
+          success: false,
+        },
+      ],
+      testFiles: [
+        {
+          filename: 'tests/registration.test.js',
+          totalTime: 14.651688,
+          totalTestCases: 9,
+        },
+      ],
     }
     const context: Context = {
       prefix: 'testreport',
       tags: ['env:ci'],
       timestamp: 1234567890,
+      filterTestFileSlowerThan: 1,
       filterTestCaseSlowerThan: 1,
       sendTestCaseSuccess: true,
       sendTestCaseFailure: true,
@@ -90,7 +82,7 @@ describe('getJunitXmlMetrics', () => {
       testCaseBaseDirectory: '',
     }
 
-    const metrics = getJunitXmlMetrics(junitXml, context)
+    const metrics = getTestReportMetrics(testReport, context)
     expect(metrics.series).toMatchSnapshot()
   })
 })

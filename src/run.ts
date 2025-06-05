@@ -3,13 +3,14 @@ import * as fs from 'fs/promises'
 import * as glob from '@actions/glob'
 import { createMatcher } from './codeowners.js'
 import { createMetricsClient } from './datadog.js'
-import { parseJunitXml } from './junitxml.js'
-import { getJunitXmlMetrics } from './metrics.js'
+import { parseTestReportFiles } from './junitxml.js'
+import { getTestReportMetrics } from './metrics.js'
 import { Context } from './github.js'
 
 type Inputs = {
   junitXmlPath: string
   metricNamePrefix: string
+  filterTestFileSlowerThan: number
   filterTestCaseSlowerThan: number
   sendTestCaseSuccess: boolean
   sendTestCaseFailure: boolean
@@ -34,6 +35,7 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     prefix: inputs.metricNamePrefix,
     tags: [...workflowTags, ...inputs.datadogTags],
     timestamp: unixTime(new Date()),
+    filterTestFileSlowerThan: inputs.filterTestFileSlowerThan,
     filterTestCaseSlowerThan: inputs.filterTestCaseSlowerThan,
     sendTestCaseSuccess: inputs.sendTestCaseSuccess,
     sendTestCaseFailure: inputs.sendTestCaseFailure,
@@ -46,19 +48,12 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
 
   const metricsClient = createMetricsClient(inputs)
   const junitXmlGlob = await glob.create(inputs.junitXmlPath)
-  for await (const junitXmlPath of junitXmlGlob.globGenerator()) {
-    core.info(`Processing ${junitXmlPath}`)
-    const f = await fs.readFile(junitXmlPath)
-    const junitXml = parseJunitXml(f)
-    core.startGroup(`Parsed ${junitXmlPath}`)
-    core.info(JSON.stringify(junitXml, undefined, 2))
-    core.endGroup()
+  const junitXmlFiles = await junitXmlGlob.glob()
 
-    const metrics = getJunitXmlMetrics(junitXml, metricsContext)
-
-    await metricsClient.submitMetrics(metrics.series, junitXmlPath)
-    await metricsClient.submitDistributionPoints(metrics.distributionPointsSeries, junitXmlPath)
-  }
+  const testReports = await parseTestReportFiles(junitXmlFiles)
+  const metrics = getTestReportMetrics(testReports, metricsContext)
+  await metricsClient.submitMetrics(metrics.series, `${junitXmlFiles.length} files`)
+  await metricsClient.submitDistributionPoints(metrics.distributionPointsSeries, `${junitXmlFiles.length} files`)
 }
 
 const createCodeownersMatcher = async () => {
