@@ -9,17 +9,29 @@ import {
   parseJunitXml,
   parseTestReportFiles,
   TestCase,
+  TestReport,
 } from '../src/junitxml.js'
 
 describe('parseTestReportFiles', () => {
   it('should parse rspec.xml', async () => {
     const testReportFiles = [path.join(__dirname, 'fixtures/rspec1.xml'), path.join(__dirname, 'fixtures/rspec2.xml')]
-    const testFiles = await parseTestReportFiles(testReportFiles)
-    expect(testFiles).toEqual([
-      { filename: 'spec/a_spec.rb', totalTime: 3, totalTestCases: 2 },
-      { filename: 'spec/b_spec.rb', totalTime: 12, totalTestCases: 3 },
-      { filename: 'spec/c_spec.rb', totalTime: 13, totalTestCases: 2 },
-    ])
+    const testReport = await parseTestReportFiles(testReportFiles)
+    expect(testReport).toEqual<TestReport>({
+      testFiles: [
+        { filename: 'spec/a_spec.rb', totalTime: 3, totalTestCases: 2 },
+        { filename: 'spec/b_spec.rb', totalTime: 12, totalTestCases: 3 },
+        { filename: 'spec/c_spec.rb', totalTime: 13, totalTestCases: 2 },
+      ],
+      testCases: [
+        { name: 'a1', filename: 'spec/a_spec.rb', time: 1, success: true },
+        { name: 'a2', filename: 'spec/a_spec.rb', time: 2, success: true },
+        { name: 'b1', filename: 'spec/b_spec.rb', time: 3, success: true },
+        { name: 'b2', filename: 'spec/b_spec.rb', time: 4, success: true },
+        { name: 'b3', filename: 'spec/b_spec.rb', time: 5, success: true },
+        { name: 'c1', filename: 'spec/c_spec.rb', time: 6, success: true },
+        { name: 'c2', filename: 'spec/c_spec.rb', time: 7, success: true },
+      ],
+    })
   })
 
   it('should parse cypress.xml', async () => {
@@ -27,11 +39,19 @@ describe('parseTestReportFiles', () => {
       path.join(__dirname, 'fixtures/cypress1.xml'),
       path.join(__dirname, 'fixtures/cypress2.xml'),
     ]
-    const testFiles = await parseTestReportFiles(testReportFiles)
-    expect(testFiles).toEqual([
-      { filename: 'cypress/a_spec.ts', totalTime: 6, totalTestCases: 3 },
-      { filename: 'cypress/b_spec.ts', totalTime: 4, totalTestCases: 1 },
-    ])
+    const testReport = await parseTestReportFiles(testReportFiles)
+    expect(testReport).toEqual<TestReport>({
+      testFiles: [
+        { filename: 'cypress/a_spec.ts', totalTime: 6, totalTestCases: 3 },
+        { filename: 'cypress/b_spec.ts', totalTime: 4, totalTestCases: 1 },
+      ],
+      testCases: [
+        { name: 'Test 1', filename: 'cypress/a_spec.ts', time: 1, success: true },
+        { name: 'Test 2', filename: 'cypress/a_spec.ts', time: 2, success: true },
+        { name: 'Test 1', filename: 'cypress/a_spec.ts', time: 3, success: true },
+        { name: 'Test 1', filename: 'cypress/b_spec.ts', time: 4, success: true },
+      ],
+    })
   })
 })
 

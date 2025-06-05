@@ -7,6 +7,7 @@ const main = async (): Promise<void> => {
     {
       junitXmlPath: core.getInput('junit-xml-path', { required: true }),
       metricNamePrefix: core.getInput('metric-name-prefix', { required: true }),
+      filterTestFileSlowerThan: parseFloat(core.getInput('filter-test-file-slower-than', { required: true })),
       filterTestCaseSlowerThan: parseFloat(core.getInput('filter-test-case-slower-than', { required: true })),
       sendTestCaseSuccess: core.getBooleanInput('send-test-case-success', { required: true }),
       sendTestCaseFailure: core.getBooleanInput('send-test-case-failure', { required: true }),
