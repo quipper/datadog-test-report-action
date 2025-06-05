@@ -29,7 +29,7 @@ export const getTestReportMetrics = (testReport: TestReport, context: Context): 
 }
 
 const getTestFileMetrics = (testFile: TestFile, context: Context): Metrics => {
-  const tags = [...context.tags, `testfile_name:${testFile.filename}`]
+  const tags = [...context.tags, `testfile_name:${testFile.filename}`, ...getOwnerTags(testFile.filename, context)]
   const metrics: Metrics = {
     series: [],
     distributionPointsSeries: [],

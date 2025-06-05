@@ -26,24 +26,6 @@ All metrics have the following tags:
 - `repository_name`
 - `workflow_name`
 
-### `testreport.testfile.duration` (distribution)
-
-This metric represents the duration of test files in seconds.
-It has the following tags:
-
-- `testfile_name`
-
-This action sends test files **slower than 1 second by default**.
-You can set `filter-test-file-slower-than` to send all test files.
-:warning: It may increase the custom metrics cost.
-
-```yaml
-- uses: quipper/test-report-observability-action@v0
-  with:
-    junit-xml-path: '**/junit.xml'
-    filter-test-file-slower-than: 0
-```
-
 ### `testreport.testcase.success_count` (count)
 
 This metric represents the number of succeeded test cases.
@@ -89,6 +71,24 @@ You can set `filter-test-case-slower-than` to send all test cases.
   with:
     junit-xml-path: '**/junit.xml'
     filter-test-case-slower-than: 0
+```
+
+### `testreport.testfile.duration` (distribution)
+
+This metric represents the duration of test files in seconds.
+It has the following tags:
+
+- `testfile_name`
+
+This action sends test files **slower than 1 second by default**.
+You can set `filter-test-file-slower-than` to send all test files.
+:warning: It may increase the custom metrics cost.
+
+```yaml
+- uses: quipper/test-report-observability-action@v0
+  with:
+    junit-xml-path: '**/junit.xml'
+    filter-test-file-slower-than: 0
 ```
 
 ## Tags
