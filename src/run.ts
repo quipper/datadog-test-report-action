@@ -4,7 +4,7 @@ import * as glob from '@actions/glob'
 import * as path from 'path'
 import { createMatcher } from './codeowners.js'
 import { createMetricsClient } from './datadog.js'
-import { FindOwners, parseTestReportFiles } from './junitxml.js'
+import { FindOwners, parseTestReportFiles, TestReport } from './junitxml.js'
 import { getTestReportMetrics } from './metrics.js'
 import { Context } from './github.js'
 
@@ -48,11 +48,44 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const metricsClient = createMetricsClient(inputs)
   const junitXmlGlob = await glob.create(inputs.junitXmlPath)
   const junitXmlFiles = await junitXmlGlob.glob()
-  const testReports = await parseTestReportFiles(junitXmlFiles, await createFindOwners(inputs))
+  const testReport = await parseTestReportFiles(junitXmlFiles, await createFindOwners(inputs))
 
-  const metrics = getTestReportMetrics(testReports, metricsContext)
+  const metrics = getTestReportMetrics(testReport, metricsContext)
   await metricsClient.submitMetrics(metrics.series, `${junitXmlFiles.length} files`)
   await metricsClient.submitDistributionPoints(metrics.distributionPointsSeries, `${junitXmlFiles.length} files`)
+
+  summarizeTestReport(testReport, inputs)
+  await core.summary.write()
+}
+
+const summarizeTestReport = (testReport: TestReport, inputs: Inputs) => {
+  core.summary.addHeading('test-report-observability-action summary', 2)
+
+  const failedTestCases = testReport.testCases.filter((testCase) => !testCase.success)
+  if (failedTestCases.length > 0) {
+    core.summary.addHeading('Failed test cases', 3)
+    core.summary.addTable([
+      [
+        { data: 'Test case', header: true },
+        { data: 'File', header: true },
+        { data: 'Owner', header: true },
+        { data: 'Failure', header: true },
+      ],
+      ...failedTestCases.map((testCase) => [
+        { data: testCase.name },
+        { data: testCase.filename },
+        { data: testCase.owners.join(', ') },
+        { data: testCase.failureMessage ?? '' },
+      ]),
+    ])
+  }
+
+  for (const testCase of failedTestCases) {
+    const canonicalPath = path.join(inputs.testCaseBaseDirectory, testCase.filename)
+    core.error(`FAIL: ${testCase.name}`, {
+      file: canonicalPath,
+    })
+  }
 }
 
 const createFindOwners = async (inputs: Inputs): Promise<FindOwners> => {
