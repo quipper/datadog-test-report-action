@@ -1,7 +1,5 @@
 import * as core from '@actions/core'
-import * as path from 'path'
 import { v1 } from '@datadog/datadog-api-client'
-import { Matcher } from './codeowners.js'
 import { TestReport, TestFile, TestCase } from './junitxml.js'
 
 export type Metrics = {
@@ -17,8 +15,6 @@ export type Context = {
   filterTestCaseSlowerThan: number
   sendTestCaseSuccess: boolean
   sendTestCaseFailure: boolean
-  codeownersMatcher: Matcher
-  testCaseBaseDirectory: string
 }
 
 export const getTestReportMetrics = (testReport: TestReport, context: Context): Metrics => {
@@ -29,7 +25,11 @@ export const getTestReportMetrics = (testReport: TestReport, context: Context): 
 }
 
 const getTestFileMetrics = (testFile: TestFile, context: Context): Metrics => {
-  const tags = [...context.tags, `testfile_name:${testFile.filename}`, ...getOwnerTags(testFile.filename, context)]
+  const tags = [
+    ...context.tags,
+    `testfile_name:${testFile.filename}`,
+    ...testFile.owners.map((owner) => `testfile_owner:${owner}`),
+  ]
   const metrics: Metrics = {
     series: [],
     distributionPointsSeries: [],
@@ -52,7 +52,7 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
     ...context.tags,
     `testcase_name:${testCase.name}`,
     `testcase_file:${testCase.filename}`,
-    ...getOwnerTags(testCase.filename, context),
+    ...testCase.owners.map((owner) => `testcase_owner:${owner}`),
   ]
   const metrics: Metrics = {
     series: [],
@@ -90,14 +90,6 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
   }
 
   return metrics
-}
-
-const getOwnerTags = (file: string, context: Context): string[] => {
-  const canonicalPath = path.join(context.testCaseBaseDirectory, file)
-  return context.codeownersMatcher
-    .findOwners(canonicalPath)
-    .map((owner) => owner.replace(/^@.+?\/|^@/, '')) // Remove leading @organization/
-    .map((owner) => `testcase_owner:${owner}`)
 }
 
 const joinMetrics = (...metricsArray: Metrics[]): Metrics => {

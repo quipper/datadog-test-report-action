@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { createMatcher } from '../src/codeowners.js'
 import { TestReport } from '../src/junitxml.js'
 import { Context, getTestReportMetrics } from '../src/metrics.js'
 
@@ -12,54 +11,63 @@ describe('getTestReportMetrics', () => {
           filename: 'tests/registration.test.js',
           time: 2.113871,
           success: true,
+          owners: [],
         },
         {
           name: 'testCase2',
           filename: 'tests/registration.test.js',
           time: 1.051,
           success: true,
+          owners: [],
         },
         {
           name: 'testCase3',
           filename: 'tests/registration.test.js',
           time: 3.441,
           success: true,
+          owners: [],
         },
         {
           name: 'testCase4',
           filename: 'tests/registration.test.js',
           time: 2.244,
           success: true,
+          owners: [],
         },
         {
           name: 'testCase5',
           filename: 'tests/registration.test.js',
           time: 0.781,
           success: true,
+          owners: [],
         },
         {
           name: 'testCase6',
           filename: 'tests/registration.test.js',
           time: 1.331,
           success: true,
+          owners: [],
         },
         {
           name: 'testCase7',
           filename: 'tests/registration.test.js',
           time: 2.508,
           success: true,
+          owners: [],
         },
         {
           name: 'testCase8',
           filename: 'tests/registration.test.js',
           time: 1.230816,
           success: true,
+          owners: [],
         },
         {
           name: 'testCase9',
           filename: 'tests/registration.test.js',
           time: 0.982,
           success: false,
+          owners: [],
         },
       ],
       testFiles: [
@@ -67,6 +75,7 @@ describe('getTestReportMetrics', () => {
           filename: 'tests/registration.test.js',
           totalTime: 14.651688,
           totalTestCases: 9,
+          owners: [],
         },
       ],
     }
@@ -78,8 +87,6 @@ describe('getTestReportMetrics', () => {
       filterTestCaseSlowerThan: 1,
       sendTestCaseSuccess: true,
       sendTestCaseFailure: true,
-      codeownersMatcher: createMatcher(''),
-      testCaseBaseDirectory: '',
     }
 
     const metrics = getTestReportMetrics(testReport, context)

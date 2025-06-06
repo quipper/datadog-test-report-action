@@ -33,6 +33,7 @@ It has the following tags:
 
 - `testcase_name`
 - `testcase_file`
+- `testcase_owner`
 
 This actions sends **only failed test cases by default**.
 You can set `send-test-case-success` to send all test cases.
@@ -52,6 +53,7 @@ It has the following tags:
 
 - `testcase_name`
 - `testcase_file`
+- `testcase_owner`
 
 ### `testreport.testcase.duration` (distribution)
 
@@ -61,6 +63,7 @@ It has the following tags:
 - `testcase_name`
 - `testcase_conclusion` (`success` or `failure`)
 - `testcase_file`
+- `testcase_owner`
 
 This action sends test cases **slower than 1 second by default**.
 You can set `filter-test-case-slower-than` to send all test cases.
@@ -79,6 +82,7 @@ This metric represents the duration of test files in seconds.
 It has the following tags:
 
 - `testfile_name`
+- `testfile_owner`
 
 This action sends test files **slower than 1 second by default**.
 You can set `filter-test-file-slower-than` to send all test files.
@@ -93,11 +97,13 @@ You can set `filter-test-file-slower-than` to send all test files.
 
 ## Tags
 
-### `testcase_owner` tag
+### Owner tags
 
 If the repository has a [CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#codeowners-file-location) file,
-this action adds the `testcase_owner` tag to the test case metrics.
-The value of the tag is the owner of the test case file.
+this action adds the following tags to the metrics:
+
+- `testcase_owner`
+- `testfile_owner`
 
 If the test report contains a relative path to the test case file,
 you can set `test-case-base-directory` to resolve the path.
