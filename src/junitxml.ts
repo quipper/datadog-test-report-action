@@ -161,36 +161,55 @@ type JunitXmlTestCase = {
   '@_name': string
   '@_time': number
   '@_file'?: string
-  failure?: {
-    '@_message'?: string
-  }
-  error?: {
-    '@_message'?: string
-  }
+  failure?:
+    | string
+    | {
+        '@_message'?: string
+      }
+  error?:
+    | string
+    | {
+        '@_message'?: string
+      }
 }
 
 function assertTestCase(x: unknown): asserts x is JunitXmlTestCase {
-  assert(typeof x === 'object', 'Element <testcase> must be an object')
+  assert(typeof x === 'object', `Element <testcase> must be an object but was ${typeof x}`)
   assert(x != null, 'Element <testcase> must not be null')
   assert('@_name' in x, 'Element <testcase> must have "name" attribute')
-  assert(typeof x['@_name'] === 'string', 'name attribute of <testcase> must be a string')
+  assert(typeof x['@_name'] === 'string', `name attribute of <testcase> must be a string but was ${typeof x['@_name']}`)
   assert('@_time' in x, 'Element <testcase> must have "time" attribute')
-  assert(typeof x['@_time'] === 'number', 'time attribute of <testcase> must be a number')
+  assert(typeof x['@_time'] === 'number', `time attribute of <testcase> must be a number but was ${typeof x['@_time']}`)
   if ('@_file' in x) {
-    assert(typeof x['@_file'] === 'string', 'file attribute of <testcase> must be a string')
+    assert(
+      typeof x['@_file'] === 'string',
+      `file attribute of <testcase> must be a string but was ${typeof x['@_file']}`,
+    )
   }
   if ('failure' in x) {
-    assert(typeof x.failure === 'object', 'Element <failure> must be an object')
-    if (x.failure != null) {
+    assert(
+      typeof x.failure === 'string' || typeof x.failure === 'object',
+      `Element <failure> must be a string or an object but was ${typeof x.failure}`,
+    )
+    if (typeof x.failure === 'object' && x.failure != null) {
       assert('@_message' in x.failure, 'Element <failure> must have "message" attribute')
-      assert(typeof x.failure['@_message'] === 'string', 'message attribute of <failure> must be a string')
+      assert(
+        typeof x.failure['@_message'] === 'string',
+        `message attribute of <failure> must be a string but was ${typeof x.failure['@_message']}`,
+      )
     }
   }
   if ('error' in x) {
-    assert(typeof x.error === 'object', 'Element <error> must be an object')
-    if (x.error != null) {
+    assert(
+      typeof x.error === 'string' || typeof x.error === 'object',
+      `Element <error> must be a string or an object but was ${typeof x.error}`,
+    )
+    if (typeof x.error === 'object' && x.error != null) {
       assert('@_message' in x.error, 'Element <error> must have "message" attribute')
-      assert(typeof x.error['@_message'] === 'string', 'message attribute of <error> must be a string')
+      assert(
+        typeof x.error['@_message'] === 'string',
+        `message attribute of <error> must be a string but was ${typeof x.error['@_message']}`,
+      )
     }
   }
 }
