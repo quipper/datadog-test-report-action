@@ -31,7 +31,7 @@ inputs:
   enable-metrics:
     description: If false, do not send the metrics to Datadog
     required: true
-    default: 'true'
+    default: ${{ github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
   datadog-api-key:
     description: Datadog API key
     required: false

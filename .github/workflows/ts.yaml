@@ -35,7 +35,6 @@ jobs:
       - name: quipper/test-report-observability-action
         uses: ./
         with:
-          enable-metrics: false
           junit-xml-path: junit.xml
           send-test-case-success: true
           filter-test-file-slower-than: 0
