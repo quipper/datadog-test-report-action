@@ -55,6 +55,7 @@ export type TestCase = {
   owners: string[]
   time: number
   success: boolean
+  failureMessage?: string
 }
 
 export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOwners): TestCase[] => {
@@ -81,6 +82,7 @@ export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOw
         owners: findOwners(filename),
         time: junitXmlTestCase['@_time'],
         success: !junitXmlTestCase.failure && !junitXmlTestCase.error,
+        failureMessage: getTestCaseFailureMessage(junitXmlTestCase),
       }
     }
     for (const nestedTestSuite of testSuite.testsuite ?? []) {
@@ -95,6 +97,21 @@ export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOw
     }
   }
   return testCases
+}
+
+const getTestCaseFailureMessage = (testCase: JunitXmlTestCase): string | undefined => {
+  if (typeof testCase.failure === 'string') {
+    return testCase.failure
+  }
+  if (typeof testCase.failure === 'object' && testCase.failure != null) {
+    return testCase.failure['@_message']
+  }
+  if (typeof testCase.error === 'string') {
+    return testCase.error
+  }
+  if (typeof testCase.error === 'object' && testCase.error != null) {
+    return testCase.error['@_message']
+  }
 }
 
 const parseTestReportFilesToJunitXml = async (testReportFiles: string[]): Promise<JunitXml[]> => {

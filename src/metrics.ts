@@ -1,4 +1,3 @@
-import * as core from '@actions/core'
 import { v1 } from '@datadog/datadog-api-client'
 import { TestReport, TestFile, TestCase } from './junitxml.js'
 
@@ -69,7 +68,6 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
       })
     }
   } else {
-    core.error(`FAIL: ${testCase.name}`)
     if (context.sendTestCaseFailure) {
       metrics.series.push({
         metric: `${context.prefix}.testcase.failure_count`,
