@@ -1,9 +1,10 @@
 import * as core from '@actions/core'
 import * as fs from 'fs/promises'
 import * as glob from '@actions/glob'
+import * as path from 'path'
 import { createMatcher } from './codeowners.js'
 import { createMetricsClient } from './datadog.js'
-import { parseTestReportFiles } from './junitxml.js'
+import { FindOwners, parseTestReportFiles } from './junitxml.js'
 import { getTestReportMetrics } from './metrics.js'
 import { Context } from './github.js'
 
@@ -39,8 +40,6 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
     filterTestCaseSlowerThan: inputs.filterTestCaseSlowerThan,
     sendTestCaseSuccess: inputs.sendTestCaseSuccess,
     sendTestCaseFailure: inputs.sendTestCaseFailure,
-    codeownersMatcher: await createCodeownersMatcher(),
-    testCaseBaseDirectory: inputs.testCaseBaseDirectory,
   }
   core.startGroup('Metrics context')
   core.info(JSON.stringify(metricsContext, undefined, 2))
@@ -49,14 +48,14 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const metricsClient = createMetricsClient(inputs)
   const junitXmlGlob = await glob.create(inputs.junitXmlPath)
   const junitXmlFiles = await junitXmlGlob.glob()
+  const testReports = await parseTestReportFiles(junitXmlFiles, await createFindOwners(inputs))
 
-  const testReports = await parseTestReportFiles(junitXmlFiles)
   const metrics = getTestReportMetrics(testReports, metricsContext)
   await metricsClient.submitMetrics(metrics.series, `${junitXmlFiles.length} files`)
   await metricsClient.submitDistributionPoints(metrics.distributionPointsSeries, `${junitXmlFiles.length} files`)
 }
 
-const createCodeownersMatcher = async () => {
+const createFindOwners = async (inputs: Inputs): Promise<FindOwners> => {
   const tryAccess = async (path: string): Promise<string | null> => {
     try {
       await fs.access(path)
@@ -69,10 +68,14 @@ const createCodeownersMatcher = async () => {
   const codeowners =
     (await tryAccess('.github/CODEOWNERS')) ?? (await tryAccess('CODEOWNERS')) ?? (await tryAccess('docs/CODEOWNERS'))
   if (!codeowners) {
-    return createMatcher('')
+    return () => []
   }
   core.info(`Parsing ${codeowners}`)
-  return createMatcher(await fs.readFile(codeowners, 'utf8'))
+  const matcher = createMatcher(await fs.readFile(codeowners, 'utf8'))
+  return (filename: string) => {
+    const canonicalPath = path.join(inputs.testCaseBaseDirectory, filename)
+    return matcher.findOwners(canonicalPath).map((owner) => owner.replace(/^@.+?\/|^@/, '')) // Remove leading @organization/
+  }
 }
 
 const unixTime = (date: Date): number => Math.floor(date.getTime() / 1000)

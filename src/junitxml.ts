@@ -11,15 +11,18 @@ export type TestReport = {
 
 export type TestFile = {
   filename: string
+  owners: string[]
   totalTime: number
   totalTestCases: number
 }
 
-export const parseTestReportFiles = async (testReportFiles: string[]): Promise<TestReport> => {
+export type FindOwners = (filename: string) => string[]
+
+export const parseTestReportFiles = async (testReportFiles: string[], findOwners: FindOwners): Promise<TestReport> => {
   const junitXmls = await parseTestReportFilesToJunitXml(testReportFiles)
   const allTestCases: TestCase[] = []
   for (const junitXml of junitXmls) {
-    const testCases = findTestCasesFromJunitXml(junitXml)
+    const testCases = findTestCasesFromJunitXml(junitXml, findOwners)
     allTestCases.push(...testCases)
   }
   core.info(`Found ${allTestCases.length} test cases in the test reports`)
@@ -35,6 +38,7 @@ export const groupTestCasesByTestFile = (testCases: TestCase[]): TestFile[] => {
   for (const testCase of testCases) {
     const currentTestFile = testFiles.get(testCase.filename) ?? {
       filename: testCase.filename,
+      owners: testCase.owners,
       totalTime: 0,
       totalTestCases: 0,
     }
@@ -48,11 +52,12 @@ export const groupTestCasesByTestFile = (testCases: TestCase[]): TestFile[] => {
 export type TestCase = {
   name: string
   filename: string
+  owners: string[]
   time: number
   success: boolean
 }
 
-export const findTestCasesFromJunitXml = (junitXml: JunitXml): TestCase[] => {
+export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOwners): TestCase[] => {
   const root = junitXml.testsuites?.testsuite ?? junitXml.testsuite ?? []
 
   function* visit(testSuite: JunitXmlTestSuite): Generator<TestCase> {
@@ -69,9 +74,11 @@ export const findTestCasesFromJunitXml = (junitXml: JunitXml): TestCase[] => {
     }
 
     for (const junitXmlTestCase of testSuite.testcase ?? []) {
+      const filename = path.normalize(determineTestCaseFilename(junitXmlTestCase))
       yield {
         name: junitXmlTestCase['@_name'],
-        filename: path.normalize(determineTestCaseFilename(junitXmlTestCase)),
+        filename,
+        owners: findOwners(filename),
         time: junitXmlTestCase['@_time'],
         success: !junitXmlTestCase.failure && !junitXmlTestCase.error,
       }
