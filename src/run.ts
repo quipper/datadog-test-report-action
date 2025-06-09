@@ -59,10 +59,9 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
 }
 
 const summarizeTestReport = (testReport: TestReport, inputs: Inputs) => {
-  core.summary.addHeading('test-report-observability-action summary', 2)
-
   const failedTestCases = testReport.testCases.filter((testCase) => !testCase.success)
   if (failedTestCases.length > 0) {
+    core.summary.addHeading('Summary of test-report-observability-action', 2)
     core.summary.addHeading('Failed test cases', 3)
     core.summary.addTable([
       [
