@@ -4,9 +4,10 @@ import * as glob from '@actions/glob'
 import * as path from 'path'
 import { createMatcher } from './codeowners.js'
 import { createMetricsClient } from './datadog.js'
-import { FindOwners, parseTestReportFiles, TestReport } from './junitxml.js'
+import { writeSummary } from './summary.js'
 import { getTestReportMetrics } from './metrics.js'
 import { Context } from './github.js'
+import { FindOwners, parseTestReportFiles } from './junitxml.js'
 
 type Inputs = {
   junitXmlPath: string
@@ -54,37 +55,8 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   await metricsClient.submitMetrics(metrics.series, `${junitXmlFiles.length} files`)
   await metricsClient.submitDistributionPoints(metrics.distributionPointsSeries, `${junitXmlFiles.length} files`)
 
-  summarizeTestReport(testReport, inputs)
+  writeSummary(testReport, inputs.testCaseBaseDirectory, context)
   await core.summary.write()
-}
-
-const summarizeTestReport = (testReport: TestReport, inputs: Inputs) => {
-  const failedTestCases = testReport.testCases.filter((testCase) => !testCase.success)
-  if (failedTestCases.length > 0) {
-    core.summary.addHeading('Summary of test-report-observability-action', 2)
-    core.summary.addHeading('Failed test cases', 3)
-    core.summary.addTable([
-      [
-        { data: 'Test case', header: true },
-        { data: 'File', header: true },
-        { data: 'Owner', header: true },
-        { data: 'Failure', header: true },
-      ],
-      ...failedTestCases.map((testCase) => [
-        { data: testCase.name },
-        { data: testCase.filename },
-        { data: testCase.owners.join(', ') },
-        { data: testCase.failureMessage ?? '' },
-      ]),
-    ])
-  }
-
-  for (const testCase of failedTestCases) {
-    const canonicalPath = path.join(inputs.testCaseBaseDirectory, testCase.filename)
-    core.error(`FAIL: ${testCase.name}`, {
-      file: canonicalPath,
-    })
-  }
 }
 
 const createFindOwners = async (inputs: Inputs): Promise<FindOwners> => {
