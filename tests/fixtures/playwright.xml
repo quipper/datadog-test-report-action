@@ -1,0 +1,21 @@
+<testsuites id="" name="" tests="3" failures="1" skipped="0" errors="0" time="0.951">
+<testsuite name="a/smoke.e2e.mjs" timestamp="2026-10-14T09:11:47.789Z" hostname="" tests="2" failures="1" skipped="0" time="0.01" errors="0">
+<testcase name="passes" classname="a/smoke.e2e.mjs" time="0.003">
+</testcase>
+<testcase name="always fails" classname="a/smoke.e2e.mjs" time="0.007">
+<failure message="expect(received).toBe(expected) // Object.is equality" type="expect.toBe">
+<![CDATA[  a/smoke.e2e.mjs:5:1 › always fails ──────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 1
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="b/smoke.e2e.mjs" timestamp="2026-10-14T09:11:47.789Z" hostname="" tests="1" failures="0" skipped="0" time="0.003" errors="0">
+<testcase name="passes" classname="b/smoke.e2e.mjs" time="0.003">
+</testcase>
+</testsuite>
+</testsuites>

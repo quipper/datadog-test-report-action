@@ -1,3 +1,4 @@
+import { statSync } from 'node:fs'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import * as core from '@actions/core'
@@ -18,11 +19,15 @@ export type TestFile = {
 
 export type FindOwners = (filename: string) => string[]
 
-export const parseTestReportFiles = async (testReportFiles: string[], findOwners: FindOwners): Promise<TestReport> => {
+export const parseTestReportFiles = async (
+  testReportFiles: string[],
+  findOwners: FindOwners,
+  testCaseBaseDirectory = '',
+): Promise<TestReport> => {
   const junitXmls = await parseTestReportFilesToJunitXml(testReportFiles)
   const allTestCases: TestCase[] = []
   for (const junitXml of junitXmls) {
-    const testCases = findTestCasesFromJunitXml(junitXml, findOwners)
+    const testCases = findTestCasesFromJunitXml(junitXml, findOwners, testCaseBaseDirectory)
     allTestCases.push(...testCases)
   }
   core.info(`Found ${allTestCases.length} test cases in the test reports`)
@@ -58,7 +63,11 @@ export type TestCase = {
   failureMessage?: string
 }
 
-export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOwners): TestCase[] => {
+export const findTestCasesFromJunitXml = (
+  junitXml: JunitXml,
+  findOwners: FindOwners,
+  testCaseBaseDirectory = '',
+): TestCase[] => {
   const root = junitXml.testsuites?.testsuite ?? junitXml.testsuite ?? []
 
   function* visit(testSuite: JunitXmlTestSuite): Generator<TestCase> {
@@ -70,6 +79,12 @@ export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOw
       const mochaRootSuiteFilename = root.at(0)?.['@_file']
       if (mochaRootSuiteFilename) {
         return mochaRootSuiteFilename
+      }
+      // For Playwright, the classname is the path relative to testDir.
+      // Require the file to exist, so that a class name such as Java's is not taken as a filename.
+      const classname = junitXmlTestCase['@_classname']
+      if (classname && isFile(path.join(testCaseBaseDirectory, classname))) {
+        return classname
       }
       throw new Error(`Element <testcase> must have "file" attribute (name=${junitXmlTestCase['@_name']})`)
     }
@@ -98,6 +113,14 @@ export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOw
     }
   }
   return testCases
+}
+
+const isFile = (filePath: string): boolean => {
+  try {
+    return statSync(filePath).isFile()
+  } catch {
+    return false
+  }
 }
 
 const getTestCaseFailureMessage = (failure: JunitXmlTestCaseFailure | undefined): string | undefined => {
@@ -156,6 +179,7 @@ const JunitXmlTestCase = z.object({
   '@_name': z.string(),
   '@_time': z.number(),
   '@_file': z.string().optional(),
+  '@_classname': z.string().optional(),
   failure: JunitXmlTestCaseFailure.optional(),
   error: JunitXmlTestCaseFailure.optional(),
 })

@@ -129,6 +129,19 @@ you can set `test-case-base-directory` to resolve the path.
     test-case-base-directory: microservice
 ```
 
+If neither the `<testcase>` element nor the first `<testsuite>` element has a `file` attribute,
+this action uses the `classname` attribute as the test case file
+only when it points to an existing file relative to `test-case-base-directory`.
+The [JUnit reporter of Playwright](https://playwright.dev/docs/test-reporters#junit-reporter) sets `classname` to the path relative to `testDir`,
+so set `test-case-base-directory` to the `testDir` of Playwright.
+
+```yaml
+- uses: quipper/test-report-observability-action@v0
+  with:
+    junit-xml-path: e2e/test-results/junit.xml
+    test-case-base-directory: e2e/tests
+```
+
 ## Specification
 
 ### Inputs

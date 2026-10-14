@@ -27,7 +27,11 @@ type Inputs = {
 export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   const junitXmlGlob = await glob.create(inputs.junitXmlPath)
   const junitXmlFiles = await junitXmlGlob.glob()
-  const testReport = await parseTestReportFiles(junitXmlFiles, await createFinder(inputs.testCaseBaseDirectory))
+  const testReport = await parseTestReportFiles(
+    junitXmlFiles,
+    await createFinder(inputs.testCaseBaseDirectory),
+    inputs.testCaseBaseDirectory,
+  )
 
   await uploadCurrentFailedTestReport(testReport, inputs, context)
   const flakyTestCases = await findFlakyTestCases(testReport, inputs, context)

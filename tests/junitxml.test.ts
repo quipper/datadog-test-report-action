@@ -51,6 +51,27 @@ describe('parseTestReportFiles', () => {
       ],
     })
   })
+
+  it('should resolve the test case file from classname for the Playwright JUnit reporter', async () => {
+    const testReportFiles = [path.join(__dirname, 'fixtures/playwright.xml')]
+    const testReport = await parseTestReportFiles(
+      testReportFiles,
+      () => [],
+      path.join(__dirname, 'fixtures/playwright'),
+    )
+    expect(testReport.testCases).toEqual<TestCase[]>([
+      { name: 'passes', filename: 'a/smoke.e2e.mjs', time: 0.003, success: true, owners: [] },
+      {
+        name: 'always fails',
+        filename: 'a/smoke.e2e.mjs',
+        time: 0.007,
+        success: false,
+        owners: [],
+        failureMessage: 'expect(received).toBe(expected) // Object.is equality',
+      },
+      { name: 'passes', filename: 'b/smoke.e2e.mjs', time: 0.003, success: true, owners: [] },
+    ])
+  })
 })
 
 describe('parseJunitXml', () => {
@@ -171,6 +192,58 @@ describe('findTestCasesFromJunitXml', () => {
       { name: 'test2', filename: 'file2', time: 2, success: true, owners: [] },
       { name: 'test3', filename: 'file1', time: 3, success: true, owners: [] },
     ])
+  })
+
+  const testCaseBaseDirectory = path.join(__dirname, 'fixtures/playwright')
+
+  it('should resolve the file from classname relative to the base directory', () => {
+    const junitXml = {
+      testsuite: [{ testcase: [{ '@_name': 'test1', '@_time': 1, '@_classname': './a/smoke.e2e.mjs' }] }],
+    }
+    expect(findTestCasesFromJunitXml(junitXml, () => [], testCaseBaseDirectory)).toEqual<TestCase[]>([
+      { name: 'test1', filename: 'a/smoke.e2e.mjs', time: 1, success: true, owners: [] },
+    ])
+  })
+
+  it('should prefer the file attribute to classname', () => {
+    const junitXml = {
+      testsuite: [
+        { testcase: [{ '@_name': 'test1', '@_time': 1, '@_file': 'file1', '@_classname': 'a/smoke.e2e.mjs' }] },
+      ],
+    }
+    expect(findTestCasesFromJunitXml(junitXml, () => [], testCaseBaseDirectory)).toEqual<TestCase[]>([
+      { name: 'test1', filename: 'file1', time: 1, success: true, owners: [] },
+    ])
+  })
+
+  it('should prefer the file attribute of the first testsuite to classname', () => {
+    const junitXml = {
+      testsuite: [
+        { '@_file': 'file1' },
+        { testcase: [{ '@_name': 'test1', '@_time': 1, '@_classname': 'a/smoke.e2e.mjs' }] },
+      ],
+    }
+    expect(findTestCasesFromJunitXml(junitXml, () => [], testCaseBaseDirectory)).toEqual<TestCase[]>([
+      { name: 'test1', filename: 'file1', time: 1, success: true, owners: [] },
+    ])
+  })
+
+  it('should throw an error if classname is not an existing file', () => {
+    const junitXml = {
+      testsuite: [{ testcase: [{ '@_name': 'test1', '@_time': 1, '@_classname': 'com.example.FooTest' }] }],
+    }
+    expect(() => findTestCasesFromJunitXml(junitXml, () => [], testCaseBaseDirectory)).toThrow(
+      'Element <testcase> must have "file" attribute (name=test1)',
+    )
+  })
+
+  it('should throw an error if classname is a directory', () => {
+    const junitXml = {
+      testsuite: [{ testcase: [{ '@_name': 'test1', '@_time': 1, '@_classname': 'a' }] }],
+    }
+    expect(() => findTestCasesFromJunitXml(junitXml, () => [], testCaseBaseDirectory)).toThrow(
+      'Element <testcase> must have "file" attribute (name=test1)',
+    )
   })
 })
 
