@@ -55,6 +55,16 @@ export const findFlakyTestCases = async (testReport: TestReport, config: FlakyTe
   return findFlakyTestCasesFromReports(lastFailedTestReport, testReport)
 }
 
+export const findFlakyTestCasesInRetries = (testReport: TestReport): FailedTestCase[] =>
+  testReport.testCases
+    .filter((testCase) => testCase.flakyFailureMessage !== undefined)
+    .map((testCase) => ({
+      name: testCase.name,
+      filename: testCase.filename,
+      owners: testCase.owners,
+      failureMessage: testCase.flakyFailureMessage,
+    }))
+
 const findFlakyTestCasesFromReports = (
   lastFailedTestReport: FailedTestReport,
   currentTestReport: TestReport,

@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import { createFinder } from './codeowners.js'
 import { createMetricsClient } from './datadog.js'
-import { findFlakyTestCases, uploadCurrentFailedTestReport } from './flaky.js'
+import { findFlakyTestCases, findFlakyTestCasesInRetries, uploadCurrentFailedTestReport } from './flaky.js'
 import type { Context } from './github.js'
 import { parseTestReportFiles } from './junitxml.js'
 import { getTestReportMetrics } from './metrics.js'
@@ -17,6 +17,7 @@ type Inputs = {
   failedTestReportArtifactNamePrefix: string
   sendTestCaseSuccess: boolean
   sendTestCaseFailure: boolean
+  detectFlakyTestCasesInRetries: boolean
   testCaseBaseDirectory: string
   enableMetrics: boolean
   datadogApiKey: string
@@ -31,21 +32,26 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
 
   await uploadCurrentFailedTestReport(testReport, inputs, context)
   const flakyTestCases = await findFlakyTestCases(testReport, inputs, context)
+  const flakyTestCasesInRetries = inputs.detectFlakyTestCasesInRetries ? findFlakyTestCasesInRetries(testReport) : []
 
-  sendFlakyTestCasesToSentry(flakyTestCases, {
-    testCaseBaseDirectory: inputs.testCaseBaseDirectory,
-    tags: [
-      `github.repository_owner:${context.repo.owner}`,
-      `github.repository_name:${context.repo.repo}`,
-      `github.workflow_name:${context.workflow}`,
-      `github.event_name:${context.eventName}`,
-      `github.ref_name:${context.refName}`,
-      `github.sha:${context.sha}`,
-      `github.workflow_run.url:${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-      `github.workflow_run.attempt:${context.runAttempt}`,
-      ...inputs.tags,
-    ],
-  })
+  sendFlakyTestCasesToSentry(
+    flakyTestCases,
+    {
+      testCaseBaseDirectory: inputs.testCaseBaseDirectory,
+      tags: [
+        `github.repository_owner:${context.repo.owner}`,
+        `github.repository_name:${context.repo.repo}`,
+        `github.workflow_name:${context.workflow}`,
+        `github.event_name:${context.eventName}`,
+        `github.ref_name:${context.refName}`,
+        `github.sha:${context.sha}`,
+        `github.workflow_run.url:${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+        `github.workflow_run.attempt:${context.runAttempt}`,
+        ...inputs.tags,
+      ],
+    },
+    flakyTestCasesInRetries,
+  )
 
   const metricsContext = {
     prefix: inputs.metricNamePrefix,
@@ -68,12 +74,12 @@ export const run = async (inputs: Inputs, context: Context): Promise<void> => {
   core.info(JSON.stringify(metricsContext, undefined, 2))
   core.endGroup()
 
-  const metrics = getTestReportMetrics(testReport, flakyTestCases, metricsContext)
+  const metrics = getTestReportMetrics(testReport, flakyTestCases, metricsContext, flakyTestCasesInRetries)
   const metricsClient = createMetricsClient(inputs)
   await metricsClient.submitMetrics(metrics.series, `${junitXmlFiles.length} files`)
   await metricsClient.submitDistributionPoints(metrics.distributionPointsSeries, `${junitXmlFiles.length} files`)
 
-  writeSummary(testReport, flakyTestCases, inputs.testCaseBaseDirectory, context)
+  writeSummary(testReport, [...flakyTestCases, ...flakyTestCasesInRetries], inputs.testCaseBaseDirectory, context)
   await core.summary.write()
 }
 

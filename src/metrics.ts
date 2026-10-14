@@ -21,11 +21,13 @@ export const getTestReportMetrics = (
   testReport: TestReport,
   flakyTestCases: FailedTestCase[],
   context: Context,
+  flakyTestCasesInRetries: FailedTestCase[] = [],
 ): Metrics => {
   return joinMetrics(
     ...testReport.testFiles.map((testFile) => getTestFileMetrics(testFile, context)),
     ...testReport.testCases.map((testCase) => getTestCaseMetrics(testCase, context)),
-    ...flakyTestCases.map((testCase) => getFlakyTestCaseMetrics(testCase, context)),
+    ...flakyTestCases.map((testCase) => getFlakyTestCaseMetrics(testCase, context, [])),
+    ...flakyTestCasesInRetries.map((testCase) => getFlakyTestCaseMetrics(testCase, context, ['flaky_kind:retry'])),
   )
 }
 
@@ -96,12 +98,13 @@ const getTestCaseMetrics = (testCase: TestCase, context: Context): Metrics => {
   return metrics
 }
 
-const getFlakyTestCaseMetrics = (testCase: FailedTestCase, context: Context): Metrics => {
+const getFlakyTestCaseMetrics = (testCase: FailedTestCase, context: Context, flakyKindTags: string[]): Metrics => {
   const tags = [
     ...context.tags,
     `testcase_name:${testCase.name}`,
     `testcase_file:${testCase.filename}`,
     ...testCase.owners.map((owner) => `testcase_owner:${owner}`),
+    ...flakyKindTags,
   ]
   const metrics: Metrics = {
     series: [],

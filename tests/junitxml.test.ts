@@ -51,6 +51,34 @@ describe('parseTestReportFiles', () => {
       ],
     })
   })
+
+  // The fixture is the output of the Playwright JUnit reporter with includeRetries: true.
+  // It was edited to add the "file" attributes and remove the skipped test case,
+  // because this action requires the "file" and "time" attributes of every test case.
+  it('should parse the Playwright report with retries', async () => {
+    const testReportFiles = [path.join(__dirname, 'fixtures/playwright-retries.xml')]
+    const testReport = await parseTestReportFiles(testReportFiles, () => [])
+    expect(testReport.testCases).toEqual<TestCase[]>([
+      { name: 'passes', filename: 'a/smoke.spec.mjs', time: 0.003, success: true, owners: [] },
+      {
+        name: 'flaky one',
+        filename: 'a/smoke.spec.mjs',
+        time: 0.003,
+        success: true,
+        owners: [],
+        flakyFailureMessage: 'expect(received).toBe(expected) // Object.is equality',
+      },
+      {
+        name: 'always fails',
+        filename: 'a/smoke.spec.mjs',
+        time: 0.001,
+        success: false,
+        owners: [],
+        failureMessage: 'expect(received).toBe(expected) // Object.is equality',
+      },
+      { name: 'passes too', filename: 'b/smoke.spec.mjs', time: 0.003, success: true, owners: [] },
+    ])
+  })
 })
 
 describe('parseJunitXml', () => {
@@ -124,6 +152,36 @@ describe('parseJunitXml', () => {
     const junitXml = parseJunitXml(xml)
     expect(junitXml.testsuite?.at(0)?.testcase?.at(0)?.failure).toStrictEqual(['Stack trace', 'Another'])
   })
+
+  it('parses <flakyFailure> element with message attribute and stackTrace child element', () => {
+    const xml = `
+      <testsuite>
+        <testcase name="test1" time="1" file="file1">
+          <flakyFailure message="Test failed" type="expect.toBe" time="0.002">
+            <stackTrace><![CDATA[Error: Test failed]]></stackTrace>
+          </flakyFailure>
+        </testcase>
+      </testsuite>
+    `
+    const junitXml = parseJunitXml(xml)
+    expect(junitXml.testsuite?.at(0)?.testcase?.at(0)?.flakyFailure).toStrictEqual({
+      '@_message': 'Test failed',
+    })
+  })
+
+  it('parses <flakyError> element with message attribute', () => {
+    const xml = `
+      <testsuite>
+        <testcase name="test1" time="1" file="file1">
+          <flakyError message="Test errored" type="Error" time="0.002"></flakyError>
+        </testcase>
+      </testsuite>
+    `
+    const junitXml = parseJunitXml(xml)
+    expect(junitXml.testsuite?.at(0)?.testcase?.at(0)?.flakyError).toStrictEqual({
+      '@_message': 'Test errored',
+    })
+  })
 })
 
 describe('findTestCasesFromJunitXml', () => {
@@ -171,6 +229,93 @@ describe('findTestCasesFromJunitXml', () => {
       { name: 'test2', filename: 'file2', time: 2, success: true, owners: [] },
       { name: 'test3', filename: 'file1', time: 3, success: true, owners: [] },
     ])
+  })
+})
+
+describe('findTestCasesFromJunitXml with retries', () => {
+  const findTestCase = (testCaseXml: string): TestCase | undefined => {
+    const junitXml = parseJunitXml(`<testsuite>${testCaseXml}</testsuite>`)
+    return findTestCasesFromJunitXml(junitXml, () => []).at(0)
+  }
+
+  it('returns the message of <flakyFailure> for a test case passed on a retry', () => {
+    const testCase = findTestCase(`
+      <testcase name="test1" time="1" file="file1">
+        <flakyFailure message="Flaky failure"></flakyFailure>
+      </testcase>
+    `)
+    expect(testCase).toEqual<TestCase>({
+      name: 'test1',
+      filename: 'file1',
+      time: 1,
+      success: true,
+      owners: [],
+      flakyFailureMessage: 'Flaky failure',
+    })
+  })
+
+  it('returns the message of <flakyError> for a test case passed on a retry', () => {
+    const testCase = findTestCase(`
+      <testcase name="test1" time="1" file="file1">
+        <flakyError message="Flaky error"></flakyError>
+      </testcase>
+    `)
+    expect(testCase).toEqual<TestCase>({
+      name: 'test1',
+      filename: 'file1',
+      time: 1,
+      success: true,
+      owners: [],
+      flakyFailureMessage: 'Flaky error',
+    })
+  })
+
+  it('returns the message of the first <flakyFailure> if both <flakyFailure> and <flakyError> exist', () => {
+    const testCase = findTestCase(`
+      <testcase name="test1" time="1" file="file1">
+        <flakyError message="Flaky error"></flakyError>
+        <flakyFailure message="Flaky failure 1"></flakyFailure>
+        <flakyFailure message="Flaky failure 2"></flakyFailure>
+      </testcase>
+    `)
+    expect(testCase?.flakyFailureMessage).toBe('Flaky failure 1')
+  })
+
+  it('returns an empty message if <flakyFailure> has no message', () => {
+    const testCase = findTestCase(`
+      <testcase name="test1" time="1" file="file1">
+        <flakyFailure type="Error"></flakyFailure>
+      </testcase>
+    `)
+    expect(testCase?.flakyFailureMessage).toBe('')
+  })
+
+  it('does not return the flaky failure message for a test case failed on all retries', () => {
+    const testCase = findTestCase(`
+      <testcase name="test1" time="1" file="file1">
+        <flakyFailure message="Flaky failure"></flakyFailure>
+        <failure message="Failure"></failure>
+      </testcase>
+    `)
+    expect(testCase?.success).toBe(false)
+    expect(testCase?.failureMessage).toBe('Failure')
+    expect(testCase).not.toHaveProperty('flakyFailureMessage')
+  })
+
+  it('ignores malformed <flakyFailure> elements instead of failing the report', () => {
+    const testCase = findTestCase(`
+      <testcase name="test1" time="1" file="file1">
+        <flakyFailure message="Flaky failure">Stack trace</flakyFailure>
+        <flakyFailure>Stack trace</flakyFailure>
+      </testcase>
+    `)
+    expect(testCase?.success).toBe(true)
+    expect(testCase).not.toHaveProperty('flakyFailureMessage')
+  })
+
+  it('does not return the flaky failure message for a test case without retries', () => {
+    const testCase = findTestCase(`<testcase name="test1" time="1" file="file1"></testcase>`)
+    expect(testCase).not.toHaveProperty('flakyFailureMessage')
   })
 })
 

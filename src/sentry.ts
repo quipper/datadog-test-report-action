@@ -20,7 +20,11 @@ export const truncateFailureMessage = (message?: string) => {
   }
 }
 
-export const sendFlakyTestCasesToSentry = (flakyTestCases: FailedTestCase[], context: SentryContext) => {
+export const sendFlakyTestCasesToSentry = (
+  flakyTestCases: FailedTestCase[],
+  context: SentryContext,
+  flakyTestCasesInRetries: FailedTestCase[] = [],
+) => {
   const tags = Object.fromEntries(
     context.tags.map((tag) => {
       const key = tag.split(':')[0]
@@ -28,7 +32,11 @@ export const sendFlakyTestCasesToSentry = (flakyTestCases: FailedTestCase[], con
       return [key, value]
     }),
   )
-  for (const testCase of flakyTestCases) {
+  const flakyTestCasesWithKindTags = [
+    ...flakyTestCases.map((testCase) => ({ testCase, flakyKindTags: {} })),
+    ...flakyTestCasesInRetries.map((testCase) => ({ testCase, flakyKindTags: { 'testcase.flaky_kind': 'retry' } })),
+  ]
+  for (const { testCase, flakyKindTags } of flakyTestCasesWithKindTags) {
     const testFilePath = path.join(context.testCaseBaseDirectory, testCase.filename)
     const event: sentry.Event = {
       message: testCase.name,
@@ -37,6 +45,7 @@ export const sendFlakyTestCasesToSentry = (flakyTestCases: FailedTestCase[], con
         ...tags,
         'testcase.owners': testCase.owners.join(','),
         'testcase.filename': testCase.filename,
+        ...flakyKindTags,
       },
       exception: {
         values: [
