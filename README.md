@@ -29,6 +29,9 @@ All metrics have the following tags:
 - `repository_name`
 - `workflow_name`
 
+This action excludes skipped test cases from the metrics and the flaky detection, because they were not run.
+A test case is skipped if it has a `<skipped>` element and has neither a `<failure>` nor an `<error>` element.
+
 ### `testreport.testcase.success_count` (count)
 
 This metric represents the number of succeeded test cases.

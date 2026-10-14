@@ -1,4 +1,5 @@
 import * as fs from 'node:fs/promises'
+import * as os from 'node:os'
 import * as path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
@@ -50,6 +51,38 @@ describe('parseTestReportFiles', () => {
         { name: 'Test 1', filename: 'cypress/b_spec.ts', time: 4, success: true, owners: [] },
       ],
     })
+  })
+
+  it('should parse playwright-skipped.xml excluding skipped test cases', async () => {
+    // Playwright does not emit the "file" attribute, so this test copies "classname" to "file".
+    const xml = await fs.readFile(path.join(__dirname, 'fixtures/playwright-skipped.xml'), 'utf-8')
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'junitxml-test-'))
+    try {
+      const testReportFile = path.join(tempDir, 'playwright.xml')
+      await fs.writeFile(testReportFile, xml.replace(/classname="([^"]+)"/g, 'classname="$1" file="$1"'))
+      const testReport = await parseTestReportFiles([testReportFile], () => [])
+      expect(testReport).toEqual<TestReport>({
+        testFiles: [
+          { filename: 'a/smoke.spec.mjs', totalTime: expect.closeTo(0.015), totalTestCases: 3, owners: [] },
+          { filename: 'b/smoke.spec.mjs', totalTime: 0.003, totalTestCases: 1, owners: [] },
+        ],
+        testCases: [
+          { name: 'passes', filename: 'a/smoke.spec.mjs', time: 0.003, success: true, owners: [] },
+          { name: 'flaky one', filename: 'a/smoke.spec.mjs', time: 0.005, success: true, owners: [] },
+          {
+            name: 'always fails',
+            filename: 'a/smoke.spec.mjs',
+            time: 0.007,
+            success: false,
+            owners: [],
+            failureMessage: 'expect(received).toBe(expected) // Object.is equality',
+          },
+          { name: 'passes too', filename: 'b/smoke.spec.mjs', time: 0.003, success: true, owners: [] },
+        ],
+      })
+    } finally {
+      await fs.rm(tempDir, { recursive: true, force: true })
+    }
   })
 })
 
@@ -171,6 +204,58 @@ describe('findTestCasesFromJunitXml', () => {
       { name: 'test2', filename: 'file2', time: 2, success: true, owners: [] },
       { name: 'test3', filename: 'file1', time: 3, success: true, owners: [] },
     ])
+  })
+
+  it('should exclude skipped test cases', () => {
+    const junitXml = parseJunitXml(`
+      <testsuite>
+        <testcase name="test1" time="1" file="file1"></testcase>
+        <testcase name="test2" file="file1"><skipped/></testcase>
+        <testcase name="test3" file="file1"><skipped>
+        </skipped></testcase>
+        <testcase name="test4" file="file1"><skipped message="Not implemented"/></testcase>
+      </testsuite>
+    `)
+    expect(findTestCasesFromJunitXml(junitXml, () => [])).toEqual<TestCase[]>([
+      { name: 'test1', filename: 'file1', time: 1, success: true, owners: [] },
+    ])
+  })
+
+  it('should exclude a skipped test case even if it has time', () => {
+    const junitXml = parseJunitXml(`
+      <testsuite>
+        <testcase name="test1" time="1" file="file1"></testcase>
+        <testcase name="test2" time="0" file="file1"><skipped/></testcase>
+      </testsuite>
+    `)
+    expect(findTestCasesFromJunitXml(junitXml, () => [])).toEqual<TestCase[]>([
+      { name: 'test1', filename: 'file1', time: 1, success: true, owners: [] },
+    ])
+  })
+
+  it('should keep a skipped test case as a failure if it has a failure', () => {
+    const junitXml = parseJunitXml(`
+      <testsuite>
+        <testcase name="test1" time="1" file="file1">
+          <skipped/>
+          <failure message="Test failed"/>
+        </testcase>
+      </testsuite>
+    `)
+    expect(findTestCasesFromJunitXml(junitXml, () => [])).toEqual<TestCase[]>([
+      { name: 'test1', filename: 'file1', time: 1, success: false, owners: [], failureMessage: 'Test failed' },
+    ])
+  })
+
+  it('should throw an error if a test case without skipped has no time', () => {
+    const junitXml = parseJunitXml(`
+      <testsuite>
+        <testcase name="test1" file="file1"></testcase>
+      </testsuite>
+    `)
+    expect(() => findTestCasesFromJunitXml(junitXml, () => [])).toThrow(
+      'Element <testcase> must have "time" attribute (name=test1)',
+    )
   })
 })
 
