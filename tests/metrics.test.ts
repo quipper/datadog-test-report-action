@@ -149,4 +149,50 @@ describe('getTestReportMetrics', () => {
     const metrics = getTestReportMetrics(testReport, flakyTestCases, context)
     expect(metrics.series).toMatchSnapshot()
   })
+
+  it('returns flaky metrics with flaky_kind:retry tag only for flaky test cases in retries', () => {
+    const testReport: TestReport = {
+      testCases: [
+        { name: 'testCase1', filename: 'tests/a.test.js', time: 0.1, success: true, owners: [] },
+        { name: 'testCase2', filename: 'tests/a.test.js', time: 0.1, success: true, owners: ['@owner'] },
+      ],
+      testFiles: [{ filename: 'tests/a.test.js', totalTime: 0.2, totalTestCases: 2, owners: [] }],
+    }
+    const context: Context = {
+      prefix: 'testreport',
+      tags: ['env:ci'],
+      timestamp: 1234567890,
+      filterTestFileSlowerThan: 1,
+      filterTestCaseSlowerThan: 1,
+      sendTestCaseSuccess: false,
+      sendTestCaseFailure: false,
+    }
+
+    const metrics = getTestReportMetrics(
+      testReport,
+      [{ name: 'testCase1', filename: 'tests/a.test.js', owners: [] }],
+      context,
+      [{ name: 'testCase2', filename: 'tests/a.test.js', owners: ['@owner'] }],
+    )
+    expect(metrics.series).toStrictEqual([
+      {
+        metric: 'testreport.testcase.flaky_failure_count',
+        points: [[1234567890, 1]],
+        type: 'count',
+        tags: ['env:ci', 'testcase_name:testCase1', 'testcase_file:tests/a.test.js'],
+      },
+      {
+        metric: 'testreport.testcase.flaky_failure_count',
+        points: [[1234567890, 1]],
+        type: 'count',
+        tags: [
+          'env:ci',
+          'testcase_name:testCase2',
+          'testcase_file:tests/a.test.js',
+          'testcase_owner:@owner',
+          'flaky_kind:retry',
+        ],
+      },
+    ])
+  })
 })

@@ -36,6 +36,10 @@ inputs:
     description: Send failed test cases
     required: true
     default: 'true'
+  detect-flaky-test-cases-in-retries:
+    description: Detect flaky test cases that passed on a retry within the same run
+    required: true
+    default: 'false'
   datadog-api-key:
     description: Datadog API key
     required: false

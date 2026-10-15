@@ -16,6 +16,7 @@ const main = async (): Promise<void> => {
       failedTestReportArtifactNamePrefix: core.getInput('failed-test-report-artifact-name-prefix', { required: true }),
       sendTestCaseSuccess: core.getBooleanInput('send-test-case-success', { required: true }),
       sendTestCaseFailure: core.getBooleanInput('send-test-case-failure', { required: true }),
+      detectFlakyTestCasesInRetries: core.getBooleanInput('detect-flaky-test-cases-in-retries', { required: true }),
       testCaseBaseDirectory: core.getInput('test-case-base-directory'),
       enableMetrics: core.getBooleanInput('enable-metrics', { required: true }),
       datadogApiKey: core.getInput('datadog-api-key'),

@@ -56,6 +56,7 @@ export type TestCase = {
   time: number
   success: boolean
   failureMessage?: string
+  flakyFailureMessage?: string
 }
 
 export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOwners): TestCase[] => {
@@ -85,6 +86,7 @@ export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOw
         throw new Error(`Element <testcase> must have "time" attribute (name=${junitXmlTestCase['@_name']})`)
       }
       const filename = path.normalize(determineTestCaseFilename(junitXmlTestCase))
+      const flakyFailureMessage = success ? getTestCaseFlakyFailureMessage(junitXmlTestCase) : undefined
       yield {
         name: junitXmlTestCase['@_name'],
         filename,
@@ -93,6 +95,7 @@ export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOw
         success,
         failureMessage:
           getTestCaseFailureMessage(junitXmlTestCase.failure) ?? getTestCaseFailureMessage(junitXmlTestCase.error),
+        ...(flakyFailureMessage !== undefined && { flakyFailureMessage }),
       }
     }
     for (const nestedTestSuite of testSuite.testsuite ?? []) {
@@ -129,6 +132,14 @@ const getTestCaseFailureMessage = (failure: JunitXmlTestCaseFailure | undefined)
   if (typeof failure === 'object' && failure != null && '@_message' in failure) {
     return failure['@_message']
   }
+}
+
+const getTestCaseFlakyFailureMessage = (junitXmlTestCase: JunitXmlTestCase): string | undefined => {
+  const flakyFailure = junitXmlTestCase.flakyFailure ?? junitXmlTestCase.flakyError
+  if (flakyFailure === undefined) {
+    return
+  }
+  return getTestCaseFailureMessage(Array.isArray(flakyFailure) ? flakyFailure.at(0) : flakyFailure) ?? ''
 }
 
 const parseTestReportFilesToJunitXml = async (testReportFiles: string[]): Promise<JunitXml[]> => {
@@ -169,6 +180,9 @@ const JunitXmlTestCase = z.object({
   failure: JunitXmlTestCaseFailure.optional(),
   error: JunitXmlTestCaseFailure.optional(),
   skipped: z.unknown().optional(),
+  // Retry elements are supplementary, so a malformed one should not fail the whole report.
+  flakyFailure: JunitXmlTestCaseFailure.optional().catch(undefined),
+  flakyError: JunitXmlTestCaseFailure.optional().catch(undefined),
 })
 
 type JunitXmlTestCase = z.infer<typeof JunitXmlTestCase>

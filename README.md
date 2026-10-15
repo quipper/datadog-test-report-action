@@ -72,6 +72,18 @@ It has the following tags:
 
 This action considers a test case as **flaky** if it was failed in the last attempt and succeeded in the current attempt.
 
+You can set `detect-flaky-test-cases-in-retries` to also detect a test case that failed and then passed on a retry within the same run.
+This action detects it from a `<flakyFailure>` or `<flakyError>` element in the JUnit XML.
+Its metric has the tag `flaky_kind:retry`, and you can filter `!flaky_kind:retry` to get only the flaky test cases across attempts.
+For Playwright, set `includeRetries: true` in the JUnit reporter options to output these elements.
+
+```yaml
+- uses: quipper/test-report-observability-action@v0
+  with:
+    junit-xml-path: "**/junit.xml"
+    detect-flaky-test-cases-in-retries: true
+```
+
 ### `testreport.testcase.duration` (distribution)
 
 This metric represents the duration of test cases in seconds.
@@ -147,6 +159,7 @@ you can set `test-case-base-directory` to resolve the path.
 | `enable-metrics`                          | <sup>\*1</sup> | If false, do not send the metrics to Datadog                              |
 | `send-test-case-success`                  | false          | Send succeeded test cases                                                 |
 | `send-test-case-failure`                  | true           | Send failed test cases                                                    |
+| `detect-flaky-test-cases-in-retries`      | false          | Detect flaky test cases that passed on a retry within the same run        |
 | `datadog-api-key`                         | -              | Datadog API key                                                           |
 | `datadog-site`                            | -              | Datadog site                                                              |
 | `sentry-dsn`                              | -              | Sentry DSN for sending the test cases                                     |
