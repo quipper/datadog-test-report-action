@@ -76,14 +76,22 @@ export const findTestCasesFromJunitXml = (junitXml: JunitXml, findOwners: FindOw
     }
 
     for (const junitXmlTestCase of testSuite.testcase ?? []) {
-      const filename = path.normalize(determineTestCaseFilename(junitXmlTestCase))
       const success = !junitXmlTestCase.failure && !junitXmlTestCase.error
+      // A skipped test case was not run, so it is not a result of the test.
+      if (junitXmlTestCase.skipped !== undefined && success) {
+        continue
+      }
+      const time = junitXmlTestCase['@_time']
+      if (time === undefined) {
+        throw new Error(`Element <testcase> must have "time" attribute (name=${junitXmlTestCase['@_name']})`)
+      }
+      const filename = path.normalize(determineTestCaseFilename(junitXmlTestCase))
       const flakyFailureMessage = success ? getTestCaseFlakyFailureMessage(junitXmlTestCase) : undefined
       yield {
         name: junitXmlTestCase['@_name'],
         filename,
         owners: findOwners(filename),
-        time: junitXmlTestCase['@_time'],
+        time,
         success,
         failureMessage:
           getTestCaseFailureMessage(junitXmlTestCase.failure) ?? getTestCaseFailureMessage(junitXmlTestCase.error),
@@ -166,10 +174,12 @@ type JunitXmlTestCaseFailure = z.infer<typeof JunitXmlTestCaseFailure>
 
 const JunitXmlTestCase = z.object({
   '@_name': z.string(),
-  '@_time': z.number(),
+  // Playwright omits "time" of a skipped test case.
+  '@_time': z.number().optional(),
   '@_file': z.string().optional(),
   failure: JunitXmlTestCaseFailure.optional(),
   error: JunitXmlTestCaseFailure.optional(),
+  skipped: z.unknown().optional(),
   // Retry elements are supplementary, so a malformed one should not fail the whole report.
   flakyFailure: JunitXmlTestCaseFailure.optional().catch(undefined),
   flakyError: JunitXmlTestCaseFailure.optional().catch(undefined),

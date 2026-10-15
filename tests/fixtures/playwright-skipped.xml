@@ -1,0 +1,31 @@
+<testsuites id="" name="" tests="5" failures="1" skipped="1" errors="0" time="0.9511669999999999">
+<testsuite name="a/smoke.spec.mjs" timestamp="2026-10-14T09:11:47.789Z" hostname="" tests="4" failures="1" skipped="1" time="0.015" errors="0">
+<testcase name="passes" classname="a/smoke.spec.mjs" time="0.003">
+</testcase>
+<testcase name="skipped one" classname="a/smoke.spec.mjs">
+<properties>
+<property name="skip" value="skip">
+</property>
+</properties>
+<skipped>
+</skipped>
+</testcase>
+<testcase name="flaky one" classname="a/smoke.spec.mjs" time="0.005">
+</testcase>
+<testcase name="always fails" classname="a/smoke.spec.mjs" time="0.007">
+<failure message="expect(received).toBe(expected) // Object.is equality" type="expect.toBe">
+<![CDATA[  a/smoke.spec.mjs:5:1 › always fails ──────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 1
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="b/smoke.spec.mjs" timestamp="2026-10-14T09:11:47.789Z" hostname="" tests="1" failures="0" skipped="0" time="0.003" errors="0">
+<testcase name="passes too" classname="b/smoke.spec.mjs" time="0.003">
+</testcase>
+</testsuite>
+</testsuites>
