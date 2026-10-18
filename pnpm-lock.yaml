@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@actions/artifact':
-        specifier: 6.2.1
-        version: 6.2.1
+        specifier: 6.3.1
+        version: 6.3.1
       '@actions/core':
         specifier: 3.0.1
         version: 3.0.1
@@ -57,8 +57,8 @@ importers:
 
 packages:
 
-  '@actions/artifact@6.2.1':
-    resolution: {integrity: sha512-sJGH0mhEbEjBCw7o6SaLhUU66u27aFW8HTfkIb5Tk2/Wy0caUDc+oYQEgnuFN7a0HCpAbQyK0U6U7XUJDgDWrw==}
+  '@actions/artifact@6.3.1':
+    resolution: {integrity: sha512-DBXgdB9T4yj2KSe0tFg+MTi9T5se+16bdrFQh+3Y6Nq1lZ3gYQk1BjHoTof+7Zf36bEAlfVMf+8ifRKeyGJugQ==}
 
   '@actions/core@3.0.1':
     resolution: {integrity: sha512-a6d/Nwahm9fliVGRhdhofo40HjHQasUPusmc7vBfyky+7Z+P2A1J68zyFVaNcEclc/Se+eO595oAr5nwEIoIUA==}
@@ -77,6 +77,9 @@ packages:
 
   '@actions/http-client@4.0.0':
     resolution: {integrity: sha512-QuwPsgVMsD6qaPD57GLZi9sqzAZCtiJT8kVBCDpLtxhL5MydQ4gS+DrejtZZPdIYyB1e95uCK9Luyds7ybHI3g==}
+
+  '@actions/http-client@4.0.1':
+    resolution: {integrity: sha512-+Nvd1ImaOZBSoPbsUtEhv+1z99H12xzncCkz0a3RuehINE81FZSe2QTj3uvAPTcJX/SCzUQHQ0D1GrPMbrPitg==}
 
   '@actions/io@3.0.2':
     resolution: {integrity: sha512-nRBchcMM+QK1pdjO7/idu86rbJI5YHUKCvKs0KxnSYbVe3F51UfGxuZX4Qy/fWlp6l7gWFwIkrOzN+oUK03kfw==}
@@ -192,12 +195,6 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
-
-  '@bufbuild/protobuf@2.12.0':
-    resolution: {integrity: sha512-B/XlCaFIP8LOwzo+bz5uFzATYokcwCKQcghqnlfwSmM5eX/qTkvDBnDPs+gXtX/RyjxJ4DRikECcPJbyALA8FA==}
-
-  '@bufbuild/protoplugin@2.12.0':
-    resolution: {integrity: sha512-ORlDITp8AFUXzIhLRoMCG+ud+D3MPKWb5HQXBoskMMnjeyEjE1H1qLonVNPyOr8lkx3xSfYUo8a0dvOZJVAzow==}
 
   '@datadog/datadog-api-client@1.64.0':
     resolution: {integrity: sha512-6aNItNZ/lYMDsgTfn7DvEYLW+qGGDqxX3qijIHpHFrxOf830xjX2wb7cwTjubv9j30EP33iSNGu17QA5Y1KGUg==}
@@ -453,14 +450,6 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@protobuf-ts/plugin@2.11.1':
-    resolution: {integrity: sha512-HyuprDcw0bEEJqkOWe1rnXUP0gwYLij8YhPuZyZk6cJbIgc/Q0IFgoHQxOXNIXAcXM4Sbehh6kjVnCzasElw1A==}
-    hasBin: true
-
-  '@protobuf-ts/protoc@2.11.1':
-    resolution: {integrity: sha512-mUZJaV0daGO6HUX90o/atzQ6A7bbN2RSuHtdwo8SSF2Qoe3zHwa4IHyCN1evftTeHfLmdz+45qo47sL+5P8nyg==}
-    hasBin: true
-
   '@protobuf-ts/runtime-rpc@2.11.1':
     resolution: {integrity: sha512-4CqqUmNA+/uMz00+d3CYKgElXO9VrEbucjnBFEjqI4GuDrEQ32MaI3q+9qPBvIGOlL4PmHXrzM32vBPWRhQKWQ==}
 
@@ -648,11 +637,6 @@ packages:
 
   '@types/pako@1.0.7':
     resolution: {integrity: sha512-YBtzT2ztNF6R/9+UXj2wTGFnC9NklAnASt3sC0h2m1bbH7G6FyBIkt4AN8ThZpNfxUo1b2iMVO0UawiJymEt8A==}
-
-  '@typescript/vfs@1.6.4':
-    resolution: {integrity: sha512-PJFXFS4ZJKiJ9Qiuix6Dz/OwEIqHD7Dme1UwZhTK11vR+5dqW2ACbdndWQexBzCx+CPuMe5WBYQWCsFyGlQLlQ==}
-    peerDependencies:
-      typescript: '*'
 
   '@typespec/ts-http-runtime@0.3.6':
     resolution: {integrity: sha512-jIXhD0eWQ1JA6ln/5Dltyx22UxWNrw0hZmhy2rlv6m6KgF7kplHx3g0fzi09lNmTJQRR91OlemYp3xFnvDK9og==}
@@ -1300,16 +1284,6 @@ packages:
     resolution: {integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==}
     engines: {node: '>=0.6.11 <=0.7.0 || >=0.7.3'}
 
-  typescript@3.9.10:
-    resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-
-  typescript@5.4.5:
-    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@6.0.3:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
@@ -1453,19 +1427,19 @@ packages:
 
 snapshots:
 
-  '@actions/artifact@6.2.1':
+  '@actions/artifact@6.3.1':
     dependencies:
       '@actions/core': 3.0.1
       '@actions/github': 9.1.1
-      '@actions/http-client': 4.0.0
+      '@actions/http-client': 4.0.1
       '@azure/storage-blob': 12.32.0
       '@octokit/core': 7.0.6
       '@octokit/plugin-request-log': 6.0.0(@octokit/core@7.0.6)
       '@octokit/plugin-retry': 8.1.0(@octokit/core@7.0.6)
       '@octokit/request': 10.0.10
       '@octokit/request-error': 7.1.0
-      '@protobuf-ts/plugin': 2.11.1
       '@protobuf-ts/runtime': 2.11.1
+      '@protobuf-ts/runtime-rpc': 2.11.1
       archiver: 7.0.1
       jwt-decode: 4.0.0
       unzip-stream: 0.3.4
@@ -1505,6 +1479,11 @@ snapshots:
       undici: 6.23.0
 
   '@actions/http-client@4.0.0':
+    dependencies:
+      tunnel: 0.0.6
+      undici: 6.23.0
+
+  '@actions/http-client@4.0.1':
     dependencies:
       tunnel: 0.0.6
       undici: 6.23.0
@@ -1658,16 +1637,6 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.4.16':
     optional: true
-
-  '@bufbuild/protobuf@2.12.0': {}
-
-  '@bufbuild/protoplugin@2.12.0':
-    dependencies:
-      '@bufbuild/protobuf': 2.12.0
-      '@typescript/vfs': 1.6.4(typescript@5.4.5)
-      typescript: 5.4.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@datadog/datadog-api-client@1.64.0':
     dependencies:
@@ -1861,19 +1830,6 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@protobuf-ts/plugin@2.11.1':
-    dependencies:
-      '@bufbuild/protobuf': 2.12.0
-      '@bufbuild/protoplugin': 2.12.0
-      '@protobuf-ts/protoc': 2.11.1
-      '@protobuf-ts/runtime': 2.11.1
-      '@protobuf-ts/runtime-rpc': 2.11.1
-      typescript: 3.9.10
-    transitivePeerDependencies:
-      - supports-color
-
-  '@protobuf-ts/protoc@2.11.1': {}
-
   '@protobuf-ts/runtime-rpc@2.11.1':
     dependencies:
       '@protobuf-ts/runtime': 2.11.1
@@ -1992,13 +1948,6 @@ snapshots:
       undici-types: 7.24.6
 
   '@types/pako@1.0.7': {}
-
-  '@typescript/vfs@1.6.4(typescript@5.4.5)':
-    dependencies:
-      debug: 4.4.3
-      typescript: 5.4.5
-    transitivePeerDependencies:
-      - supports-color
 
   '@typespec/ts-http-runtime@0.3.6':
     dependencies:
@@ -2672,10 +2621,6 @@ snapshots:
   tslib@2.8.1: {}
 
   tunnel@0.0.6: {}
-
-  typescript@3.9.10: {}
-
-  typescript@5.4.5: {}
 
   typescript@6.0.3: {}
 
